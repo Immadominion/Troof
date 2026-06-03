@@ -1,0 +1,168 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Fonts — reference next/font runtime vars (see layout.tsx) with system fallbacks.
+     NOTE: never use `var(--font-sans)` here (circular) — must point at --font-geist-*. */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-heading: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* Troof brand + SACRED verdict colors. Green/red appear ONLY for verification verdicts. */
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-verified: var(--verified);
+  --color-verified-foreground: var(--verified-foreground);
+  --color-verified-muted: var(--verified-muted);
+  --color-tampered: var(--tampered);
+  --color-tampered-foreground: var(--tampered-foreground);
+  --color-tampered-muted: var(--tampered-muted);
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+/* Shared, absolute brand + verdict colors (identical in light/dark — they are signals, not surfaces). */
+:root {
+  --brand: oklch(0.78 0.13 209);            /* cool technical cyan — links, focus, "live" */
+  --brand-foreground: oklch(0.16 0 0);
+  --verified: oklch(0.74 0.18 152);         /* SACRED green — Verified only */
+  --verified-foreground: oklch(0.15 0 0);
+  --verified-muted: oklch(0.74 0.18 152 / 12%);
+  --tampered: oklch(0.637 0.237 25.5);      /* SACRED red — Tampered only */
+  --tampered-foreground: oklch(0.99 0 0);
+  --tampered-muted: oklch(0.637 0.237 25.5 / 14%);
+}
+
+/* Light theme (not the default; Troof is dark-first). Kept sane for completeness. */
+:root {
+  --radius: 0.5rem;
+  --background: oklch(0.99 0 0);
+  --foreground: oklch(0.16 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.16 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.16 0 0);
+  --primary: oklch(0.18 0 0);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.18 0 0);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.45 0 0);
+  --accent: oklch(0.96 0 0);
+  --accent-foreground: oklch(0.18 0 0);
+  --destructive: oklch(0.637 0.237 25.5);
+  --border: oklch(0.9 0 0);
+  --input: oklch(0.9 0 0);
+  --ring: oklch(0.78 0.13 209);
+  --chart-1: oklch(0.78 0.13 209);
+  --chart-2: oklch(0.55 0 0);
+  --chart-3: oklch(0.45 0 0);
+  --chart-4: oklch(0.65 0 0);
+  --chart-5: oklch(0.35 0 0);
+  --sidebar: oklch(0.98 0 0);
+  --sidebar-foreground: oklch(0.16 0 0);
+  --sidebar-primary: oklch(0.18 0 0);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.96 0 0);
+  --sidebar-accent-foreground: oklch(0.18 0 0);
+  --sidebar-border: oklch(0.9 0 0);
+  --sidebar-ring: oklch(0.78 0.13 209);
+}
+
+/* Dark theme — the Troof default. Stark, near-black "cryptographic instrument". */
+.dark {
+  --background: oklch(0.145 0 0);           /* near-black ~#0a0a0a */
+  --foreground: oklch(0.97 0 0);
+  --card: oklch(0.185 0 0);                 /* subtly lifted panel */
+  --card-foreground: oklch(0.97 0 0);
+  --popover: oklch(0.185 0 0);
+  --popover-foreground: oklch(0.97 0 0);
+  --primary: oklch(0.97 0 0);               /* white primary (stark) */
+  --primary-foreground: oklch(0.16 0 0);
+  --secondary: oklch(0.25 0 0);
+  --secondary-foreground: oklch(0.97 0 0);
+  --muted: oklch(0.235 0 0);
+  --muted-foreground: oklch(0.64 0 0);
+  --accent: oklch(0.26 0 0);
+  --accent-foreground: oklch(0.97 0 0);
+  --destructive: oklch(0.637 0.237 25.5);
+  --border: oklch(1 0 0 / 8%);             /* barely-there */
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.78 0.13 209);            /* cyan focus ring */
+  --chart-1: oklch(0.78 0.13 209);
+  --chart-2: oklch(0.7 0 0);
+  --chart-3: oklch(0.55 0 0);
+  --chart-4: oklch(0.42 0 0);
+  --chart-5: oklch(0.32 0 0);
+  --sidebar: oklch(0.165 0 0);
+  --sidebar-foreground: oklch(0.97 0 0);
+  --sidebar-primary: oklch(0.97 0 0);
+  --sidebar-primary-foreground: oklch(0.16 0 0);
+  --sidebar-accent: oklch(0.26 0 0);
+  --sidebar-accent-foreground: oklch(0.97 0 0);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-ring: oklch(0.78 0.13 209);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "ss01", "cv01", "cv03";
+  }
+  /* tabular figures everywhere numbers matter; mono utility for crypto artifacts */
+  .tabnum { font-variant-numeric: tabular-nums; }
+  .artifact {
+    font-family: var(--font-mono);
+    font-variant-ligatures: none;
+    word-break: break-all;
+  }
+}
+
+/* Selection + focus feel like an instrument */
+::selection { background: oklch(0.78 0.13 209 / 25%); }

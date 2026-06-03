@@ -1,0 +1,26 @@
+{
+  "id": "agent-mcp",
+  "title": "The agent + Tatum MCP",
+  "purpose": "Show how the Claude agent uses the real Tatum MCP plus local integrity tools, with a clean serverless fallback.",
+  "audience": "technical judges",
+  "aspectRatio": "16:9",
+  "style": { "theme": "Pure Mono", "font": "Geist Mono for tool names" },
+  "nodes": [
+    { "id": "user", "label": "User message" },
+    { "id": "claude", "label": "Claude (AI SDK v6)\nmulti-step agent" },
+    { "id": "mcp", "label": "Tatum MCP server (stdio)\n13 tools", "tag": "Tatum", "tools": ["gateway_execute_rpc", "get_exchange_rate", "get_wallet_portfolio", "check_malicious_address", "..."] },
+    { "id": "local", "label": "Local tools (integrity)", "tools": ["analyze_wallet", "analyze_token", "seal_wallet_proof", "seal_token_proof"] },
+    { "id": "engine", "label": "Tatum-powered engine\n(report · token · score · seal)" }
+  ],
+  "edges": [
+    { "from": "user", "to": "claude" },
+    { "from": "claude", "to": "mcp", "label": "real MCP tool calls" },
+    { "from": "claude", "to": "local", "label": "analyze + seal" },
+    { "from": "local", "to": "engine" },
+    { "from": "mcp", "to": "engine", "label": "(same Tatum gateway underneath)", "style": "dashed" }
+  ],
+  "annotations": [
+    "Callout: 'On serverless, stdio MCP can't spawn → agent falls back to the local Tatum-engine tools. Same data, never breaks.'",
+    "Emphasize breadth for the Best-Use-of-Tatum prize: RPC + Exchange-Rate Data API + the full MCP."
+  ]
+}

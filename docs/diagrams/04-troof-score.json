@@ -1,0 +1,24 @@
+{
+  "id": "troof-score",
+  "title": "The Troof Score",
+  "purpose": "Explain the transparent A–F trust grade and that it is itself sealable.",
+  "audience": "everyone",
+  "aspectRatio": "4:3",
+  "style": { "theme": "Pure Mono", "grade": "A in green, F in red, B/C/D neutral", "font": "Geist Mono for penalties/fields" },
+  "centerpiece": { "label": "TROOF SCORE", "example": "F · 25", "note": "impersonator hard-capped to F" },
+  "pillars": [
+    { "name": "Identity / canonicity", "max": -40, "field": "coinType", "detail": "spoofs SUI symbol but != 0x2::sui::SUI → critical fail" },
+    { "name": "Age / provenance", "max": -15, "field": "previousTransaction", "detail": "newer = riskier" },
+    { "name": "Metadata mutability", "max": -10, "field": "owner", "detail": "frozen CoinMetadata is safer" },
+    { "name": "Supply transparency", "max": -10, "field": "totalSupply", "detail": "readable on-chain" }
+  ],
+  "honesty": {
+    "label": "not verifiable via RPC (shown, never faked)",
+    "items": ["holder distribution", "liquidity / market depth", "mint-authority renouncement"]
+  },
+  "annotations": [
+    "Every penalty cites the raw on-chain field it came from (credit-report style).",
+    "Footer: 'rubric troof_score_v1 — and this whole grade can be sealed into a proof.'",
+    "Inputs come from Tatum Sui RPC."
+  ]
+}

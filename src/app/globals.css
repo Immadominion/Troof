@@ -1,0 +1,216 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@source "../../node_modules/streamdown/dist/index.js";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Fonts — reference next/font runtime vars (see layout.tsx) with system fallbacks.
+     NOTE: never use `var(--font-sans)` here (circular) — must point at --font-geist-*. */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-heading: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* Troof brand + SACRED verdict colors. Green/red appear ONLY for verification verdicts. */
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-verified: var(--verified);
+  --color-verified-foreground: var(--verified-foreground);
+  --color-verified-muted: var(--verified-muted);
+  --color-tampered: var(--tampered);
+  --color-tampered-foreground: var(--tampered-foreground);
+  --color-tampered-muted: var(--tampered-muted);
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+/* SACRED verdict colors — fixed across light/dark. They are signals, not surfaces;
+   they are the ONLY chromatic color in the product (palette: "Pure Mono"). */
+:root {
+  --verified: oklch(0.74 0.18 152);         /* green — Verified only */
+  --verified-foreground: oklch(0.15 0 0);
+  --verified-muted: oklch(0.74 0.18 152 / 12%);
+  --tampered: oklch(0.637 0.237 25.5);      /* red — Tampered only */
+  --tampered-foreground: oklch(0.99 0 0);
+  --tampered-muted: oklch(0.637 0.237 25.5 / 14%);
+}
+
+/* Light theme (secondary; Troof is dark-first). Pure Mono — no chroma outside verdicts. */
+:root {
+  --radius: 0.5rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.14 0 0);
+  --card: oklch(0.99 0 0);
+  --card-foreground: oklch(0.14 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.14 0 0);
+  --primary: oklch(0.16 0 0);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.16 0 0);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.44 0 0);
+  --accent: oklch(0.95 0 0);
+  --accent-foreground: oklch(0.16 0 0);
+  --destructive: oklch(0.577 0.245 27.3);
+  --border: oklch(0.91 0 0);
+  --input: oklch(0.91 0 0);
+  --ring: oklch(0.4 0 0);
+  --brand: oklch(0.32 0 0);              /* mono "accent" — dark gray on light */
+  --brand-foreground: oklch(0.99 0 0);
+  --chart-1: oklch(0.2 0 0);
+  --chart-2: oklch(0.4 0 0);
+  --chart-3: oklch(0.55 0 0);
+  --chart-4: oklch(0.7 0 0);
+  --chart-5: oklch(0.82 0 0);
+  --sidebar: oklch(0.99 0 0);
+  --sidebar-foreground: oklch(0.14 0 0);
+  --sidebar-primary: oklch(0.16 0 0);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.95 0 0);
+  --sidebar-accent-foreground: oklch(0.16 0 0);
+  --sidebar-border: oklch(0.91 0 0);
+  --sidebar-ring: oklch(0.4 0 0);
+}
+
+/* Dark theme — the Troof default. "Pure Mono": stark black-and-white instrument. */
+.dark {
+  --background: oklch(0.135 0 0);           /* deepest near-black */
+  --foreground: oklch(0.98 0 0);
+  --card: oklch(0.18 0 0);                  /* subtly lifted panel */
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.18 0 0);
+  --popover-foreground: oklch(0.98 0 0);
+  --primary: oklch(0.98 0 0);               /* white primary (stark) */
+  --primary-foreground: oklch(0.14 0 0);
+  --secondary: oklch(0.25 0 0);
+  --secondary-foreground: oklch(0.98 0 0);
+  --muted: oklch(0.23 0 0);
+  --muted-foreground: oklch(0.62 0 0);
+  --accent: oklch(0.26 0 0);
+  --accent-foreground: oklch(0.98 0 0);
+  --destructive: oklch(0.637 0.237 25.5);
+  --border: oklch(1 0 0 / 7%);             /* barely-there */
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.7 0 0);                   /* monochrome focus ring */
+  --brand: oklch(0.86 0 0);                /* mono "accent" — light gray on dark */
+  --brand-foreground: oklch(0.14 0 0);
+  --chart-1: oklch(0.92 0 0);
+  --chart-2: oklch(0.72 0 0);
+  --chart-3: oklch(0.55 0 0);
+  --chart-4: oklch(0.42 0 0);
+  --chart-5: oklch(0.32 0 0);
+  --sidebar: oklch(0.165 0 0);
+  --sidebar-foreground: oklch(0.98 0 0);
+  --sidebar-primary: oklch(0.98 0 0);
+  --sidebar-primary-foreground: oklch(0.14 0 0);
+  --sidebar-accent: oklch(0.26 0 0);
+  --sidebar-accent-foreground: oklch(0.98 0 0);
+  --sidebar-border: oklch(1 0 0 / 7%);
+  --sidebar-ring: oklch(0.7 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "ss01", "cv01", "cv03";
+  }
+  /* tabular figures everywhere numbers matter; mono utility for crypto artifacts */
+  .tabnum { font-variant-numeric: tabular-nums; }
+  .artifact {
+    font-family: var(--font-mono);
+    font-variant-ligatures: none;
+    word-break: break-all;
+  }
+}
+
+/* Selection feels like an instrument — neutral, no chroma (Pure Mono). */
+::selection { background: oklch(1 0 0 / 18%); }
+
+/* Markdown (Streamdown) in the agent chat — Pure Mono, on-brand. */
+.md { font-size: 0.875rem; line-height: 1.65; }
+.md > * + * { margin-top: 0.75rem; }
+.md h1, .md h2, .md h3 { font-weight: 600; letter-spacing: -0.01em; margin-top: 1.25rem; }
+.md h1 { font-size: 1.125rem; }
+.md h2 { font-size: 1rem; }
+.md h3 { font-size: 0.9rem; }
+.md p { color: var(--foreground); opacity: 0.92; }
+.md a { color: var(--foreground); text-decoration: underline; text-underline-offset: 2px; }
+.md strong { font-weight: 600; }
+.md ul, .md ol { padding-left: 1.1rem; }
+.md ul { list-style: disc; }
+.md ol { list-style: decimal; }
+.md li { margin-top: 0.25rem; color: var(--foreground); opacity: 0.92; }
+.md code {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  background: var(--muted);
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.3rem;
+  word-break: break-all;
+}
+.md pre {
+  background: oklch(0.12 0 0);
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  padding: 0.85rem;
+  overflow-x: auto;
+}
+.md pre code { background: transparent; padding: 0; font-size: 0.8rem; }
+.md table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+.md th, .md td {
+  border: 1px solid var(--border);
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+}
+.md th { color: var(--muted-foreground); font-weight: 500; }
+.md hr { border-color: var(--border); margin: 1rem 0; }

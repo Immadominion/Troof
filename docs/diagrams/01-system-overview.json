@@ -1,0 +1,38 @@
+{
+  "id": "system-overview",
+  "title": "Troof — System Overview",
+  "purpose": "One glance: how a chat question becomes a verifiable proof across Tatum, Walrus, and Sui.",
+  "audience": "hackathon judges",
+  "aspectRatio": "16:9",
+  "style": {
+    "theme": "Pure Mono (near-black #0a0a0a, white/gray, mono labels)",
+    "accentRule": "color only for the verdict: green=Verified, red=Tampered",
+    "font": "Geist Sans for labels, Geist Mono for ids/hashes"
+  },
+  "lanes": ["Client", "Troof server (Next.js)", "External networks"],
+  "nodes": [
+    { "id": "chat", "label": "Chat terminal\n(/analyze)", "lane": "Client" },
+    { "id": "proof", "label": "Proof page\n(/p/[blobId])", "lane": "Client" },
+    { "id": "agent", "label": "/api/agent\nClaude + tools", "lane": "Troof server (Next.js)" },
+    { "id": "engine", "label": "Report + Troof Score\n(/lib report·token·score)", "lane": "Troof server (Next.js)" },
+    { "id": "seal", "label": "Seal\n(/lib/seal)", "lane": "Troof server (Next.js)" },
+    { "id": "tatum", "label": "Tatum\nSui RPC · Exchange-Rate · MCP", "lane": "External networks", "tag": "Tatum" },
+    { "id": "walrus", "label": "Walrus\npublisher / aggregator", "lane": "External networks", "tag": "Walrus" },
+    { "id": "sui", "label": "Sui\ntroof_anchor Move pkg", "lane": "External networks", "tag": "Sui" }
+  ],
+  "edges": [
+    { "from": "chat", "to": "agent", "label": "paste wallet / token" },
+    { "from": "agent", "to": "engine", "label": "analyze_* tools" },
+    { "from": "engine", "to": "tatum", "label": "RPC + rates (key server-side)" },
+    { "from": "agent", "to": "tatum", "label": "MCP (13 tools, stdio)" },
+    { "from": "agent", "to": "seal", "label": "seal_* tools" },
+    { "from": "seal", "to": "walrus", "label": "PUT evidence bundle" },
+    { "from": "seal", "to": "sui", "label": "anchor SHA-256 (via Tatum RPC)" },
+    { "from": "proof", "to": "walrus", "label": "GET from PUBLIC aggregator", "style": "emphasis" },
+    { "from": "proof", "to": "sui", "label": "read on-chain hash", "style": "emphasis" }
+  ],
+  "annotations": [
+    "Highlight that /p verification path touches NO Troof server — only public Walrus + Sui.",
+    "Caption: 'The proof outlives the server.'"
+  ]
+}

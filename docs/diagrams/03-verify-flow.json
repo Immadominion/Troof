@@ -1,0 +1,24 @@
+{
+  "id": "verify-flow",
+  "title": "Verifying a proof (the moat)",
+  "purpose": "Show that anyone, on any machine, re-checks a proof with no Troof server involved — and that one changed byte flips it red.",
+  "audience": "everyone",
+  "aspectRatio": "16:9",
+  "style": { "theme": "Pure Mono", "verdict": "green=Verified / red=Tampered are the visual climax", "font": "Geist Mono for hashes" },
+  "actors": ["A stranger's browser (incognito, different machine)"],
+  "steps": [
+    { "n": 1, "label": "Open /p/{blobId}" },
+    { "n": 2, "label": "Re-fetch", "detail": "GET from a PUBLIC Walrus aggregator (no Troof server)", "tag": "Walrus", "emphasis": true },
+    { "n": 3, "label": "Re-hash", "detail": "SHA-256 of the fetched canonical bundle, computed in-browser", "mono": true },
+    { "n": 4, "label": "Read anchor", "detail": "fetch the on-chain Record's content_hash from Sui", "tag": "Sui" },
+    { "n": 5, "label": "Compare", "detail": "in-browser hash == on-chain hash ?" }
+  ],
+  "outcomes": [
+    { "state": "match", "label": "VERIFIED", "color": "green" },
+    { "state": "mismatch", "label": "TAMPERED", "color": "red", "trigger": "change one byte of the report" }
+  ],
+  "annotations": [
+    "Show the three hashes stacked (re-hashed / anchored on Sui / sealed in blob) all equal in green; in the tampered variant the first differs.",
+    "Caption: 'No competitor's AI answer can be re-checked. That's the point.'"
+  ]
+}

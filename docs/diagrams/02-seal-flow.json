@@ -1,0 +1,20 @@
+{
+  "id": "seal-flow",
+  "title": "Sealing a proof",
+  "purpose": "Show the write path: live data → canonical bundle → on-chain anchor → Walrus blob.",
+  "audience": "technical judges",
+  "aspectRatio": "16:9",
+  "style": { "theme": "Pure Mono", "font": "Geist Mono for hashes/ids", "layout": "left-to-right pipeline" },
+  "steps": [
+    { "n": 1, "label": "Gather", "detail": "Tatum Sui RPC + Exchange-Rate build an integrity-checked report (canonical-SUI only; impersonators flagged)", "tag": "Tatum" },
+    { "n": 2, "label": "Bundle", "detail": "Canonical JSON {report + AI verdict + Troof Score}" },
+    { "n": 3, "label": "Hash", "detail": "SHA-256(canonical bundle) = contentHash", "mono": true },
+    { "n": 4, "label": "Anchor", "detail": "troof_anchor::anchor(contentHash, subject) → Record on Sui (signed by server keypair, submitted via Tatum RPC)", "tag": "Sui" },
+    { "n": 5, "label": "Store", "detail": "PUT bundle (+ anchor ref) to Walrus → blobId", "tag": "Walrus" },
+    { "n": 6, "label": "Share", "detail": "Proof URL /p/{blobId}" }
+  ],
+  "annotations": [
+    "Callout on step 3: 'the same SHA-256 is anchored on Sui AND re-checked in the browser'.",
+    "Note: blobId is content-addressed, so the URL can't point at swapped bytes."
+  ]
+}
