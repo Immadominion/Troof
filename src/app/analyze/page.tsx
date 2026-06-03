@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { Streamdown } from "streamdown";
-import { ArrowUp, Wrench, ShieldCheck, Loader2, Wallet, Coins, ShieldAlert } from "lucide-react";
+import { ArrowUp, Wrench, ShieldCheck, Loader2, Wallet, Coins, ShieldAlert, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TokenScoreCard } from "@/components/token-score-card";
+import { Onboarding } from "@/components/onboarding";
 import { cn } from "@/lib/utils";
 import type { TokenReport } from "@/lib/types";
 
@@ -43,14 +44,29 @@ export default function AnalyzePage() {
   });
   const busy = status === "submitted" || status === "streaming";
 
+  const [help, setHelp] = useState(false);
+  useEffect(() => {
+    if (typeof window !== "undefined" && !localStorage.getItem("troof_onboarded")) setHelp(true);
+  }, []);
+  function closeHelp(o: boolean) {
+    setHelp(o);
+    if (!o && typeof window !== "undefined") localStorage.setItem("troof_onboarded", "1");
+  }
+
   function submit(text: string) {
     if (!text.trim() || busy) return;
     sendMessage({ text });
     setInput("");
   }
 
+  function tryDemo() {
+    closeHelp(false);
+    submit(TILES[0].prompt);
+  }
+
   return (
     <div className="mx-auto flex min-h-[calc(100vh-3.5rem)] max-w-3xl flex-col px-5">
+      <Onboarding open={help} onOpenChange={closeHelp} onTry={tryDemo} />
       {messages.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center py-16 text-center">
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -79,6 +95,12 @@ export default function AnalyzePage() {
               Verify a proof
             </Link>
           </div>
+          <button
+            onClick={() => setHelp(true)}
+            className="mt-6 inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <HelpCircle className="h-3.5 w-3.5" /> How it works
+          </button>
         </div>
       ) : (
         <div className="flex-1 space-y-6 py-8">
