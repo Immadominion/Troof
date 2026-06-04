@@ -13,7 +13,7 @@
     "@ai-sdk/react": "^3.0.197",
     "@base-ui/react": "^1.5.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@mysten/dapp-kit": "^1.0.6",
+    "@mysten/dapp-kit": "^0.19.11",
     "@mysten/sui": "^1.45.2",
     "@tanstack/react-query": "^5.101.0",
     "@tatumio/blockchain-mcp": "^1.0.5",

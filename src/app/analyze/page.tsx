@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
+import { useCurrentAccount, useSignAndExecuteTransaction, ConnectModal } from "@mysten/dapp-kit";
+import { Transaction } from "@mysten/sui/transactions";
 import {
   ArrowUp, Wrench, ShieldCheck, Loader2, Wallet, Coins, ShieldAlert,
   HelpCircle, Zap, Sparkles, ThumbsUp, ThumbsDown,
@@ -23,6 +24,11 @@ import type { TokenReport } from "@/lib/types";
 const FAKE_SUI = "0xb0436f8d8f4700b4aec5f94b45cfaa9029b0e37ab5d09544de420850878e4ad5::sui::SUI";
 const DEMO_WALLET = "0xffd4f043057226453aeba59732d41c6093516f54823ebc3a16d17f8a77d2f0ad";
 const FREE_ANALYSES = Number(process.env.NEXT_PUBLIC_FREE_ANALYSES ?? 5);
+// Pay-per-use is opt-in: set NEXT_PUBLIC_TROOF_TREASURY to a Sui address to charge connected users.
+const TREASURY = process.env.NEXT_PUBLIC_TROOF_TREASURY;
+const PRICE_SUI = Number(process.env.NEXT_PUBLIC_PRICE_SUI ?? "0.1");
+const PRICE_MIST = Math.round(PRICE_SUI * 1e9);
+const CREDITS_PER_PURCHASE = 20;
 
 const TILES = [
   { icon: ShieldAlert, label: "Spot a fake SUI", prompt: `Analyze the token ${FAKE_SUI} on mainnet and seal its Troof Score.` },
@@ -41,7 +47,6 @@ function proofUrlFrom(p: AnyPart): string | null {
 }
 
 export default function AnalyzePage() {
-  const router = useRouter();
   const [input, setInput] = useState("");
   const [mode, setMode] = useState<"fast" | "thinking">("fast");
   const { messages, sendMessage, status, error } = useChat({
@@ -49,30 +54,55 @@ export default function AnalyzePage() {
   });
   const busy = status === "submitted" || status === "streaming";
 
+  const account = useCurrentAccount();
+  const { mutateAsync: signAndExecute } = useSignAndExecuteTransaction();
+
   const [help, setHelp] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [gateOpen, setGateOpen] = useState(false);
   const [uses, setUses] = useState(0);
+  const [credits, setCredits] = useState(0);
+  const [paying, setPaying] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!localStorage.getItem("troof_onboarded")) setHelp(true);
     setUses(Number(localStorage.getItem("troof_uses") ?? 0));
+    setCredits(Number(localStorage.getItem("troof_credits") ?? 0));
   }, []);
+  useEffect(() => {
+    if (account) setGateOpen(false); // connecting clears the gate
+  }, [account]);
+
   function closeHelp(o: boolean) {
     setHelp(o);
     if (!o && typeof window !== "undefined") localStorage.setItem("troof_onboarded", "1");
   }
 
+  // "ok" → allowed; "connect" → must connect a wallet; "pay" → connected but out of credits.
+  function gateState(): "ok" | "connect" | "pay" {
+    if (account) {
+      if (!TREASURY) return "ok"; // connected + charging off → unlimited
+      return credits > 0 ? "ok" : "pay";
+    }
+    return uses < FREE_ANALYSES ? "ok" : "connect";
+  }
+
   function submit(text: string) {
     if (!text.trim() || busy) return;
-    if (uses >= FREE_ANALYSES) {
+    if (gateState() !== "ok") {
       setGateOpen(true);
       return;
     }
-    const next = uses + 1;
-    setUses(next);
-    if (typeof window !== "undefined") localStorage.setItem("troof_uses", String(next));
+    if (!account) {
+      const n = uses + 1;
+      setUses(n);
+      localStorage.setItem("troof_uses", String(n));
+    } else if (TREASURY) {
+      const c = credits - 1;
+      setCredits(c);
+      localStorage.setItem("troof_credits", String(c));
+    }
     sendMessage({ text }, { body: { mode } });
     setInput("");
   }
@@ -82,19 +112,55 @@ export default function AnalyzePage() {
   }
   function continuePreview() {
     setUses(0);
-    if (typeof window !== "undefined") localStorage.setItem("troof_uses", "0");
+    localStorage.setItem("troof_uses", "0");
     setGateOpen(false);
+  }
+  async function buyCredits() {
+    if (!account || !TREASURY) return;
+    setPaying(true);
+    try {
+      const tx = new Transaction();
+      const [coin] = tx.splitCoins(tx.gas, [PRICE_MIST]);
+      tx.transferObjects([coin], TREASURY);
+      await signAndExecute({ transaction: tx });
+      const c = credits + CREDITS_PER_PURCHASE;
+      setCredits(c);
+      localStorage.setItem("troof_credits", String(c));
+      setGateOpen(false);
+      toast.success(`Unlocked ${CREDITS_PER_PURCHASE} analyses.`);
+    } catch {
+      toast.error("Payment cancelled or failed.");
+    } finally {
+      setPaying(false);
+    }
   }
   async function rate(rating: "up" | "down") {
     await sendFeedback({ rating, mode });
     toast.success("Thanks for the signal.");
   }
 
+  const usage =
+    account && !TREASURY
+      ? "wallet connected"
+      : account && TREASURY
+        ? `${credits} credits`
+        : `${Math.max(0, FREE_ANALYSES - uses)} free left`;
+
   return (
     <div className="mx-auto flex min-h-[calc(100vh-3.5rem)] max-w-3xl flex-col px-5">
       <Onboarding open={help} onOpenChange={closeHelp} onTry={tryDemo} />
       <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
-      <PremiumGate open={gateOpen} onOpenChange={setGateOpen} onContinue={continuePreview} onFeedback={() => { setGateOpen(false); setFeedbackOpen(true); }} />
+      <PremiumGate
+        open={gateOpen}
+        onOpenChange={setGateOpen}
+        connected={!!account}
+        canPay={!!TREASURY}
+        priceSui={PRICE_SUI}
+        paying={paying}
+        onBuy={buyCredits}
+        onContinue={continuePreview}
+        onFeedback={() => { setGateOpen(false); setFeedbackOpen(true); }}
+      />
 
       {messages.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center py-16 text-center">
@@ -174,12 +240,9 @@ export default function AnalyzePage() {
       <div className="sticky bottom-0 bg-gradient-to-t from-background via-background to-transparent pb-3 pt-3">
         <form onSubmit={(e) => { e.preventDefault(); submit(input); }}>
           <div className="flex items-center gap-2 rounded-xl border border-border bg-card/60 p-2 backdrop-blur">
-            <button
-              type="button"
-              onClick={() => setMode((x) => (x === "fast" ? "thinking" : "fast"))}
+            <button type="button" onClick={() => setMode((x) => (x === "fast" ? "thinking" : "fast"))}
               title="Fast = Haiku · Thinking = Sonnet (deeper reasoning)"
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-border px-2.5 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
-            >
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-border px-2.5 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground">
               {mode === "fast" ? <Zap className="h-3.5 w-3.5" /> : <Sparkles className="h-3.5 w-3.5 text-brand" />}
               {mode === "fast" ? "Fast" : "Thinking"}
             </button>
@@ -190,19 +253,14 @@ export default function AnalyzePage() {
             </Button>
           </div>
         </form>
-        {/* Disclaimer · powered-by · feedback */}
         <div className="mt-2 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-[11px] text-muted-foreground">
           <span>Troof can make mistakes — double-check responses.</span>
           <span className="opacity-30">·</span>
           <span className="artifact opacity-80">Powered by Tatum</span>
           <span className="opacity-30">·</span>
           <button onClick={() => setFeedbackOpen(true)} className="hover:text-foreground">Feedback</button>
-          {FREE_ANALYSES > 0 && (
-            <>
-              <span className="opacity-30">·</span>
-              <span className="tabnum">{Math.max(0, FREE_ANALYSES - uses)} free left</span>
-            </>
-          )}
+          <span className="opacity-30">·</span>
+          <span className="tabnum">{usage}</span>
         </div>
       </div>
     </div>
@@ -210,23 +268,41 @@ export default function AnalyzePage() {
 }
 
 function PremiumGate({
-  open, onOpenChange, onContinue, onFeedback,
+  open, onOpenChange, connected, canPay, priceSui, paying, onBuy, onContinue, onFeedback,
 }: {
-  open: boolean; onOpenChange: (o: boolean) => void; onContinue: () => void; onFeedback: () => void;
+  open: boolean; onOpenChange: (o: boolean) => void;
+  connected: boolean; canPay: boolean; priceSui: number; paying: boolean;
+  onBuy: () => void; onContinue: () => void; onFeedback: () => void;
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>You&apos;ve used your free analyses</DialogTitle>
+          <DialogTitle>
+            {connected ? "Out of analyses" : "You've used your free analyses"}
+          </DialogTitle>
           <DialogDescription>
-            Troof Premium — unlimited analyses + sealed proofs — unlocks by connecting a Sui wallet
-            (pay-per-use, coming next). For now you can keep exploring in preview.
+            {connected
+              ? `Top up to keep analyzing and sealing proofs.${canPay ? "" : " (Charging isn't enabled on this deployment.)"}`
+              : "Connect a Sui wallet to keep using Troof. The free API verify endpoint stays open to everyone."}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2 sm:gap-2">
-          <Button variant="ghost" onClick={onFeedback}>Tell us you want this</Button>
-          <Button onClick={onContinue}>Continue (preview)</Button>
+          {!connected ? (
+            <>
+              <Button variant="ghost" onClick={onContinue}>Continue (preview)</Button>
+              <ConnectModal trigger={<Button>Connect wallet</Button>} />
+            </>
+          ) : canPay ? (
+            <>
+              <Button variant="ghost" onClick={onFeedback}>Feedback</Button>
+              <Button onClick={onBuy} disabled={paying}>
+                {paying ? "Confirm in wallet…" : `Unlock 20 analyses · ${priceSui} SUI`}
+              </Button>
+            </>
+          ) : (
+            <Button onClick={onContinue}>Continue (preview)</Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
