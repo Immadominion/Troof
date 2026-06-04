@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { paymentMiddleware } from "x402-next";
 
 // x402 payment gate for the public Troof API (/api/v1/*).
-// Enabled only when X402_PAY_TO is set — otherwise the endpoints stay open (dev/demo).
+// Enabled only when X402_PAY_TO is set, otherwise the endpoints stay open (dev/demo).
 // Free testnet facilitator (x402.org) is the default; settlement in USDC.
 const payTo = process.env.X402_PAY_TO as `0x${string}` | undefined;
 const network = (process.env.X402_NETWORK as "base" | "base-sepolia") || "base-sepolia";

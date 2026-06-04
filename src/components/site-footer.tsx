@@ -9,7 +9,7 @@ export function SiteFooter() {
         <div className="flex items-center gap-2.5 text-muted-foreground">
           <TroofMark className="h-4 w-4" />
           <span className="text-sm">
-            {SITE.name} — {SITE.tagline}
+            {SITE.name}, {SITE.tagline}
           </span>
         </div>
 

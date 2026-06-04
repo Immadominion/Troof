@@ -39,7 +39,7 @@ export async function getTatumMcpTools(): Promise<ToolMap> {
       });
     }
     cached = wrapped;
-    console.log(`[mcp] Tatum MCP connected — ${Object.keys(wrapped).length} tools`);
+    console.log(`[mcp] Tatum MCP connected, ${Object.keys(wrapped).length} tools`);
     return wrapped;
   } catch (e) {
     console.warn("[mcp] Tatum MCP unavailable, falling back to local tools:", (e as Error).message);

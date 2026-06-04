@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "@mysten/dapp-kit/dist/index.css";
+import "driver.js/dist/driver.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
 import { SiteHeader } from "@/components/site-header";
@@ -14,12 +15,12 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: `${SITE.name} — Verifiable AI for Sui`,
+    default: `${SITE.name}, Verifiable AI for Sui`,
     template: `%s · ${SITE.name}`,
   },
   description: SITE.description,
   openGraph: {
-    title: `${SITE.name} — Verifiable AI for Sui`,
+    title: `${SITE.name}, Verifiable AI for Sui`,
     description: SITE.description,
     url: SITE.url,
     siteName: SITE.name,
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE.name} — Verifiable AI for Sui`,
+    title: `${SITE.name}, Verifiable AI for Sui`,
     description: SITE.description,
   },
 };

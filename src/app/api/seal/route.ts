@@ -3,6 +3,7 @@ import { sealProof } from "@/lib/seal";
 import { anchorConfigured } from "@/lib/anchor";
 import { NETWORKS, type Network } from "@/lib/constants";
 import { isLikelySuiAddress } from "@/lib/format";
+import { rateLimit, dailyCap, clientIp, tooMany } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,9 +11,14 @@ export const maxDuration = 60;
 
 // POST /api/seal { network, address } → builds + anchors + seals → { blobId, anchor, contentHash }
 export async function POST(req: NextRequest) {
+  // Sealing spends the server signer's gas + Walrus storage → strict per-IP + global daily caps.
+  const rl = rateLimit(`seal:${clientIp(req)}`, 5, 60_000);
+  if (!rl.ok) return tooMany(rl.retryAfter);
+  if (!dailyCap("seal:global", 300))
+    return NextResponse.json({ error: "Daily seal limit reached, try later." }, { status: 429 });
   if (!anchorConfigured()) {
     return NextResponse.json(
-      { error: "Anchor not configured yet — run scripts/deploy-anchor.mjs to publish the Move package." },
+      { error: "Anchor not configured yet, run scripts/deploy-anchor.mjs to publish the Move package." },
       { status: 503 },
     );
   }

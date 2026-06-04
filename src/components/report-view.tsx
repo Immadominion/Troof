@@ -91,8 +91,8 @@ export function ReportView({ bundle, hideSeal }: { bundle: ProofBundle; hideSeal
           </Copyable>
           <p className="mt-3 text-xs text-muted-foreground">
             snapshotted at checkpoint{" "}
-            <span className="artifact text-foreground/80">{report.checkpoint ?? "—"}</span> · gas{" "}
-            <span className="artifact text-foreground/80">{report.gasPrice ?? "—"}</span>
+            <span className="artifact text-foreground/80">{report.checkpoint ?? "-"}</span> · gas{" "}
+            <span className="artifact text-foreground/80">{report.gasPrice ?? "-"}</span>
           </p>
         </div>
         <div className="shrink-0 text-right">
@@ -140,7 +140,7 @@ export function ReportView({ bundle, hideSeal }: { bundle: ProofBundle; hideSeal
                       {b.ui.toLocaleString(undefined, { maximumFractionDigits: 4 })}
                     </div>
                     <div className="tabnum text-[11px] text-muted-foreground">
-                      {b.usd != null ? formatUsd(b.usd) : "—"}
+                      {b.usd != null ? formatUsd(b.usd) : "-"}
                     </div>
                   </div>
                 </li>
@@ -194,7 +194,7 @@ export function ReportView({ bundle, hideSeal }: { bundle: ProofBundle; hideSeal
                     {shortHash(a.digest)} <ExternalLink className="h-3 w-3" />
                   </a>
                   <span className="text-[11px] text-muted-foreground">
-                    {a.timestampMs ? new Date(a.timestampMs).toLocaleDateString() : "—"}
+                    {a.timestampMs ? new Date(a.timestampMs).toLocaleDateString() : "-"}
                   </span>
                 </li>
               ))}
@@ -217,7 +217,7 @@ export function ReportView({ bundle, hideSeal }: { bundle: ProofBundle; hideSeal
               {report.riskFlags.map((f, i) => (
                 <div key={i} className="rounded-lg border border-border bg-muted/30 p-2.5 text-xs">
                   <span className="font-medium text-foreground">{f.kind}</span>{" "}
-                  <span className="text-muted-foreground">— {f.detail}</span>
+                  <span className="text-muted-foreground">- {f.detail}</span>
                 </div>
               ))}
             </div>
@@ -225,7 +225,7 @@ export function ReportView({ bundle, hideSeal }: { bundle: ProofBundle; hideSeal
         </Section>
       </div>
 
-      {/* Evidence — the Tatum depth, on display */}
+      {/* Evidence, the Tatum depth, on display */}
       <div className="mt-4 rounded-xl border border-border bg-card/40 p-6">
         <div className="flex items-center gap-2 text-sm font-medium">
           <Database className="h-4 w-4" /> How this was built

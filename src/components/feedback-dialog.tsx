@@ -46,7 +46,7 @@ export function FeedbackDialog({
     setBusy(false);
     setText("");
     onOpenChange(false);
-    toast.success("Thanks — feedback sent.");
+    toast.success("Thanks, feedback sent.");
   }
 
   return (
@@ -55,7 +55,7 @@ export function FeedbackDialog({
         <DialogHeader>
           <DialogTitle>Give us feedback</DialogTitle>
           <DialogDescription>
-            What worked, what didn&apos;t, what you&apos;d want next. Troof is early — this shapes it.
+            What worked, what didn&apos;t, what you&apos;d want next. Troof is early, this shapes it.
           </DialogDescription>
         </DialogHeader>
         <textarea

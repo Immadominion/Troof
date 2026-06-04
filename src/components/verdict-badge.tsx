@@ -27,7 +27,7 @@ const CONFIG = {
   },
 } as const;
 
-/** The sacred verdict badge — the only saturated color in the product. */
+/** The sacred verdict badge, the only saturated color in the product. */
 export function VerdictBadge({
   status,
   size = "md",

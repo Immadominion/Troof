@@ -7,7 +7,7 @@ const DATA_BASE = "https://api.tatum.io/v3";
 
 if (!KEY && process.env.NODE_ENV !== "production") {
   // surfaced once at boot in dev to catch a missing key early
-  console.warn("[tatum] TATUM_API_KEY is not set — RPC calls will fail.");
+  console.warn("[tatum] TATUM_API_KEY is not set, RPC calls will fail.");
 }
 
 // ---- Free-tier rate limiting (3 RPS) ----
@@ -139,7 +139,7 @@ export const queryTransactionBlocks = (n: Network, owner: string, limit = 8) =>
     },
     null,
     limit,
-    true, // descending — most recent first
+    true, // descending, most recent first
   ]);
 
 // ---- Tatum Data API (chain-agnostic; works for Sui valuation) ----

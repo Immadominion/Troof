@@ -16,12 +16,12 @@ const STEPS = [
   {
     icon: ScanSearch,
     title: "Ask about any Sui wallet or token",
-    body: "Paste a 0x address or a coin type into the chat. An AI agent reads it live through Tatum's Sui RPC and MCP server — no setup.",
+    body: "Paste a 0x address or a coin type into the chat. An AI agent reads it live through Tatum's Sui RPC and MCP server, no setup.",
   },
   {
     icon: Gauge,
     title: "Get a graded, honest answer",
-    body: "Wallets get an integrity-checked report. Tokens get a Troof Score (A–F) — and anything faking the SUI symbol is flagged, never trusted by name.",
+    body: "Wallets get an integrity-checked report. Tokens get a Troof Score (A–F), and anything faking the SUI symbol is flagged, never trusted by name.",
   },
   {
     icon: Lock,
@@ -31,7 +31,7 @@ const STEPS = [
   {
     icon: ShieldCheck,
     title: "Anyone can re-check it",
-    body: "Open the proof link on any machine — it re-fetches from a public network and re-hashes in your browser. Green = Verified, red = Tampered. No Troof server in the loop.",
+    body: "Open the proof link on any machine, it re-fetches from a public network and re-hashes in your browser. Green = Verified, red = Tampered. No Troof server in the loop.",
     accent: true,
   },
 ];
@@ -113,7 +113,7 @@ export function Onboarding({
           )}
           {last ? (
             <Button size="sm" onClick={onTry}>
-              Try it — spot a fake SUI <ArrowRight className="h-4 w-4" />
+              Try it, spot a fake SUI <ArrowRight className="h-4 w-4" />
             </Button>
           ) : (
             <Button size="sm" onClick={() => setStep((x) => x + 1)}>

@@ -104,7 +104,7 @@ export async function buildReport(
 
     // Value ONLY canonical SUI (0x2::sui::SUI). Scam tokens spoof popular symbols, so
     // pricing by symbol would let an impersonator inflate the total. A verifiable product
-    // never trusts a symbol — only the canonical coin type. (USD via Tatum Exchange-Rate API.)
+    // never trusts a symbol, only the canonical coin type. (USD via Tatum Exchange-Rate API.)
     const usd = isSui && suiUsd != null ? Number((ui * suiUsd).toFixed(2)) : null;
 
     balances.push({
@@ -158,9 +158,9 @@ export async function buildReport(
   }));
 
   // ---- Lightweight risk heuristics (derived from RPC data; Tatum's malicious-address
-  //      Data API is EVM/BTC-only and does not support Sui — see README) ----
+  //      Data API is EVM/BTC-only and does not support Sui, see README) ----
   const riskFlags: RiskFlag[] = [];
-  // Impersonator detection — a coin claiming the "SUI" symbol from a non-canonical type.
+  // Impersonator detection, a coin claiming the "SUI" symbol from a non-canonical type.
   // Reliable scam signal derived purely from RPC data (no Tatum malicious-address API needed).
   const impersonators = balances.filter(
     (b) => b.symbol.toUpperCase() === "SUI" && b.coinType !== SUI_TYPE,
@@ -168,7 +168,7 @@ export async function buildReport(
   if (impersonators.length > 0) {
     riskFlags.push({
       kind: "impersonator-token",
-      detail: `${impersonators.length} token(s) spoof the "SUI" symbol from a non-canonical type — excluded from USD.`,
+      detail: `${impersonators.length} token(s) spoof the "SUI" symbol from a non-canonical type, excluded from USD.`,
       severity: "high",
     });
   }
@@ -176,7 +176,7 @@ export async function buildReport(
   if (dust.length >= 3) {
     riskFlags.push({
       kind: "dust-coins",
-      detail: `${dust.length} near-zero-value coin types — possible airdrop spam.`,
+      detail: `${dust.length} near-zero-value coin types, possible airdrop spam.`,
       severity: "low",
     });
   }

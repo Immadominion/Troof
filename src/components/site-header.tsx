@@ -5,8 +5,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { WalletButton } from "@/components/wallet-button";
 
 const NAV = [
-  { href: "/analyze", label: "Analyze" },
-  { href: "/verify", label: "Verify" },
+  { href: "/analyze", label: "Terminal" },
   { href: "/docs", label: "Docs" },
 ];
 
@@ -32,10 +31,9 @@ export function SiteHeader() {
 
         <div className="ml-auto flex items-center gap-2">
           <ThemeToggle />
-          <WalletButton />
-          <Button asChild size="sm" className="hidden font-medium sm:inline-flex">
-            <Link href="/analyze">Analyze a wallet</Link>
-          </Button>
+          <span id="tour-connect">
+            <WalletButton />
+          </span>
         </div>
       </div>
     </header>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { Streamdown } from "streamdown";
@@ -16,19 +17,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { TokenScoreCard } from "@/components/token-score-card";
-import { Onboarding } from "@/components/onboarding";
 import { FeedbackDialog, sendFeedback } from "@/components/feedback-dialog";
+import { useTypingPlaceholder } from "@/lib/use-typing-placeholder";
+import { startTour } from "@/lib/tour";
 import { cn } from "@/lib/utils";
 import type { TokenReport } from "@/lib/types";
 
 const FAKE_SUI = "0xb0436f8d8f4700b4aec5f94b45cfaa9029b0e37ab5d09544de420850878e4ad5::sui::SUI";
 const DEMO_WALLET = "0xffd4f043057226453aeba59732d41c6093516f54823ebc3a16d17f8a77d2f0ad";
 const FREE_ANALYSES = Number(process.env.NEXT_PUBLIC_FREE_ANALYSES ?? 5);
-// Pay-per-use is opt-in: set NEXT_PUBLIC_TROOF_TREASURY to a Sui address to charge connected users.
 const TREASURY = process.env.NEXT_PUBLIC_TROOF_TREASURY;
 const PRICE_SUI = Number(process.env.NEXT_PUBLIC_PRICE_SUI ?? "0.1");
 const PRICE_MIST = Math.round(PRICE_SUI * 1e9);
 const CREDITS_PER_PURCHASE = 20;
+
+const PLACEHOLDERS = [
+  "Paste a Sui wallet address…",
+  "Paste a token to grade it…",
+  "Paste a proof link to verify…",
+  "Ask: is this token a fake SUI?",
+];
 
 const TILES = [
   { icon: ShieldAlert, label: "Spot a fake SUI", prompt: `Analyze the token ${FAKE_SUI} on mainnet and seal its Troof Score.` },
@@ -45,10 +53,20 @@ function proofUrlFrom(p: AnyPart): string | null {
   }
   return null;
 }
+// One box does both: a proof link / blob id routes to verify; everything else goes to the agent.
+function detectProof(text: string): string | null {
+  const s = text.trim();
+  const m = s.match(/\/p\/([A-Za-z0-9_-]{20,})/);
+  if (m) return m[1];
+  if (!s.startsWith("0x") && /^[A-Za-z0-9_-]{30,}$/.test(s)) return s;
+  return null;
+}
 
 export default function AnalyzePage() {
+  const router = useRouter();
   const [input, setInput] = useState("");
   const [mode, setMode] = useState<"fast" | "thinking">("fast");
+  const placeholder = useTypingPlaceholder(PLACEHOLDERS);
   const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({ api: "/api/agent" }),
   });
@@ -57,7 +75,6 @@ export default function AnalyzePage() {
   const account = useCurrentAccount();
   const { mutateAsync: signAndExecute } = useSignAndExecuteTransaction();
 
-  const [help, setHelp] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [gateOpen, setGateOpen] = useState(false);
   const [uses, setUses] = useState(0);
@@ -66,23 +83,20 @@ export default function AnalyzePage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!localStorage.getItem("troof_onboarded")) setHelp(true);
     setUses(Number(localStorage.getItem("troof_uses") ?? 0));
     setCredits(Number(localStorage.getItem("troof_credits") ?? 0));
+    if (!localStorage.getItem("troof_onboarded")) {
+      localStorage.setItem("troof_onboarded", "1");
+      setTimeout(() => startTour(), 700); // let the page mount before highlighting
+    }
   }, []);
   useEffect(() => {
-    if (account) setGateOpen(false); // connecting clears the gate
+    if (account) setGateOpen(false);
   }, [account]);
 
-  function closeHelp(o: boolean) {
-    setHelp(o);
-    if (!o && typeof window !== "undefined") localStorage.setItem("troof_onboarded", "1");
-  }
-
-  // "ok" → allowed; "connect" → must connect a wallet; "pay" → connected but out of credits.
   function gateState(): "ok" | "connect" | "pay" {
     if (account) {
-      if (!TREASURY) return "ok"; // connected + charging off → unlimited
+      if (!TREASURY) return "ok";
       return credits > 0 ? "ok" : "pay";
     }
     return uses < FREE_ANALYSES ? "ok" : "connect";
@@ -90,6 +104,12 @@ export default function AnalyzePage() {
 
   function submit(text: string) {
     if (!text.trim() || busy) return;
+    const proof = detectProof(text);
+    if (proof) {
+      setInput("");
+      router.push(`/p/${proof}`); // verify is free, no gate
+      return;
+    }
     if (gateState() !== "ok") {
       setGateOpen(true);
       return;
@@ -105,10 +125,6 @@ export default function AnalyzePage() {
     }
     sendMessage({ text }, { body: { mode } });
     setInput("");
-  }
-  function tryDemo() {
-    closeHelp(false);
-    submit(TILES[0].prompt);
   }
   function continuePreview() {
     setUses(0);
@@ -140,25 +156,16 @@ export default function AnalyzePage() {
   }
 
   const usage =
-    account && !TREASURY
-      ? "wallet connected"
-      : account && TREASURY
-        ? `${credits} credits`
+    account && !TREASURY ? "wallet connected"
+      : account && TREASURY ? `${credits} credits`
         : `${Math.max(0, FREE_ANALYSES - uses)} free left`;
 
   return (
     <div className="mx-auto flex min-h-[calc(100vh-3.5rem)] max-w-3xl flex-col px-5">
-      <Onboarding open={help} onOpenChange={closeHelp} onTry={tryDemo} />
       <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
       <PremiumGate
-        open={gateOpen}
-        onOpenChange={setGateOpen}
-        connected={!!account}
-        canPay={!!TREASURY}
-        priceSui={PRICE_SUI}
-        paying={paying}
-        onBuy={buyCredits}
-        onContinue={continuePreview}
+        open={gateOpen} onOpenChange={setGateOpen} connected={!!account} canPay={!!TREASURY}
+        priceSui={PRICE_SUI} paying={paying} onBuy={buyCredits} onContinue={continuePreview}
         onFeedback={() => { setGateOpen(false); setFeedbackOpen(true); }}
       />
 
@@ -166,10 +173,10 @@ export default function AnalyzePage() {
         <div className="flex flex-1 flex-col items-center justify-center py-16 text-center">
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">The verifiable terminal for Sui</h1>
           <p className="mx-auto mt-3 max-w-lg text-muted-foreground">
-            Paste any wallet or token. The agent reads it live through Tatum, grades it, and seals a
-            proof anyone can re-check.
+            Paste any wallet, token, or proof link. The agent reads it live through Tatum, grades it,
+            and seals a proof anyone can re-check.
           </p>
-          <div className="mt-8 grid w-full gap-2 sm:grid-cols-2">
+          <div id="tour-tiles" className="mt-8 grid w-full gap-2 sm:grid-cols-2">
             {TILES.map((t) => (
               <button key={t.label} onClick={() => submit(t.prompt)}
                 className="flex items-center gap-3 rounded-lg border border-border bg-card/40 px-4 py-3 text-left text-sm transition-colors hover:bg-card/70">
@@ -177,12 +184,13 @@ export default function AnalyzePage() {
                 {t.label}
               </button>
             ))}
-            <Link href="/verify" className="flex items-center gap-3 rounded-lg border border-border bg-card/40 px-4 py-3 text-left text-sm transition-colors hover:bg-card/70">
+            <button onClick={() => setInput("troof.site/p/")}
+              className="flex items-center gap-3 rounded-lg border border-border bg-card/40 px-4 py-3 text-left text-sm transition-colors hover:bg-card/70">
               <ShieldCheck className="h-4 w-4 shrink-0 text-verified" />
               Verify a proof
-            </Link>
+            </button>
           </div>
-          <button onClick={() => setHelp(true)} className="mt-6 inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground">
+          <button onClick={startTour} className="mt-6 inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground">
             <HelpCircle className="h-3.5 w-3.5" /> How it works
           </button>
         </div>
@@ -236,17 +244,16 @@ export default function AnalyzePage() {
         </div>
       )}
 
-      {/* Composer */}
       <div className="sticky bottom-0 bg-gradient-to-t from-background via-background to-transparent pb-3 pt-3">
         <form onSubmit={(e) => { e.preventDefault(); submit(input); }}>
-          <div className="flex items-center gap-2 rounded-xl border border-border bg-card/60 p-2 backdrop-blur">
-            <button type="button" onClick={() => setMode((x) => (x === "fast" ? "thinking" : "fast"))}
+          <div id="tour-composer" className="flex items-center gap-2 rounded-xl border border-border bg-card/60 p-2 backdrop-blur">
+            <button id="tour-mode" type="button" onClick={() => setMode((x) => (x === "fast" ? "thinking" : "fast"))}
               title="Fast = Haiku · Thinking = Sonnet (deeper reasoning)"
               className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-border px-2.5 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground">
               {mode === "fast" ? <Zap className="h-3.5 w-3.5" /> : <Sparkles className="h-3.5 w-3.5 text-brand" />}
               {mode === "fast" ? "Fast" : "Thinking"}
             </button>
-            <Input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Paste a Sui wallet or token… or ask a question"
+            <Input value={input} onChange={(e) => setInput(e.target.value)} placeholder={placeholder}
               className="h-10 border-0 bg-transparent shadow-none focus-visible:ring-0" disabled={busy} />
             <Button type="submit" size="icon" className="h-10 w-10 shrink-0" disabled={busy || !input.trim()}>
               <ArrowUp className="h-4 w-4" />
@@ -254,7 +261,7 @@ export default function AnalyzePage() {
           </div>
         </form>
         <div className="mt-2 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-[11px] text-muted-foreground">
-          <span>Troof can make mistakes — double-check responses.</span>
+          <span>Troof can make mistakes, double-check responses.</span>
           <span className="opacity-30">·</span>
           <span className="artifact opacity-80">Powered by Tatum</span>
           <span className="opacity-30">·</span>
@@ -278,13 +285,11 @@ function PremiumGate({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {connected ? "Out of analyses" : "You've used your free analyses"}
-          </DialogTitle>
+          <DialogTitle>{connected ? "Out of analyses" : "You've used your free analyses"}</DialogTitle>
           <DialogDescription>
             {connected
               ? `Top up to keep analyzing and sealing proofs.${canPay ? "" : " (Charging isn't enabled on this deployment.)"}`
-              : "Connect a Sui wallet to keep using Troof. The free API verify endpoint stays open to everyone."}
+              : "Connect a Sui wallet to keep using Troof. The free verify endpoint stays open to everyone."}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2 sm:gap-2">

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildReport } from "@/lib/report";
 import { NETWORKS, type Network } from "@/lib/constants";
 import { isLikelySuiAddress } from "@/lib/format";
+import { rateLimit, clientIp, tooMany } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,6 +10,8 @@ export const maxDuration = 60;
 
 // GET /api/v1/wallet?address=0x…&network=mainnet  (x402-paid)
 export async function GET(req: NextRequest) {
+  const rl = rateLimit(`v1wallet:${clientIp(req)}`, 20, 60_000);
+  if (!rl.ok) return tooMany(rl.retryAfter);
   const sp = req.nextUrl.searchParams;
   const network = (sp.get("network") ?? "mainnet") as Network;
   const address = (sp.get("address") ?? "").trim();

@@ -37,7 +37,7 @@ export interface RiskFlag {
   severity: "low" | "medium" | "high";
 }
 
-/** Every external call the report was built from — the auditable evidence trail. */
+/** Every external call the report was built from, the auditable evidence trail. */
 export interface ToolCall {
   surface: "tatum-rpc" | "tatum-data-api" | "tatum-mcp";
   method: string;
@@ -52,7 +52,7 @@ export interface AiVerdict {
   generatedAt: string;
 }
 
-/** The full evidence bundle. This object — canonicalized — is what gets sealed to Walrus
+/** The full evidence bundle. This object, canonicalized, is what gets sealed to Walrus
  *  and whose SHA-256 is anchored on Sui. Keep it JSON-stable and self-describing. */
 export interface WalletReport {
   schema: "troof.report/v1";

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildTokenReport } from "@/lib/token";
 import { NETWORKS, type Network } from "@/lib/constants";
+import { rateLimit, clientIp, tooMany } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,6 +9,8 @@ export const maxDuration = 60;
 
 // GET /api/v1/token/score?coinType=0x…::mod::SYM&network=mainnet  (x402-paid)
 export async function GET(req: NextRequest) {
+  const rl = rateLimit(`v1score:${clientIp(req)}`, 20, 60_000);
+  if (!rl.ok) return tooMany(rl.retryAfter);
   const sp = req.nextUrl.searchParams;
   const network = (sp.get("network") ?? "mainnet") as Network;
   const coinType = (sp.get("coinType") ?? "").trim();

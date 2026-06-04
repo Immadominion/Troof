@@ -1,5 +1,5 @@
 // The tamper-check primitive. Deterministic JSON canonicalization + SHA-256.
-// Uses Web Crypto (`crypto.subtle`), which exists identically in Node 20+ AND the browser —
+// Uses Web Crypto (`crypto.subtle`), which exists identically in Node 20+ AND the browser -
 // so a proof sealed on the server verifies byte-for-byte in the visitor's browser.
 // Proven equal in scripts/smoke-test.mjs.
 

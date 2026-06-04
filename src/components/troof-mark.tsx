@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-/** Troof seal-mark: a hexagonal stamp with a check — "sealed & verified". Uses currentColor. */
+/** Troof seal-mark: a hexagonal stamp with a check, "sealed & verified". Uses currentColor. */
 export function TroofMark({ className }: { className?: string }) {
   return (
     <svg
@@ -30,10 +30,9 @@ export function TroofMark({ className }: { className?: string }) {
 export function TroofWordmark({ className }: { className?: string }) {
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>
-      <TroofMark className="h-5 w-5" />
-      <span className="font-mono text-[15px] font-medium tracking-tight lowercase">
-        troof
-      </span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo.svg" alt="" className="h-6 w-6" />
+      <span className="font-mono text-[15px] font-medium tracking-tight lowercase">troof</span>
     </span>
   );
 }

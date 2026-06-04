@@ -9,7 +9,7 @@ function gradeClasses(grade: string) {
   return "border-border bg-muted/40 text-foreground";
 }
 
-/** The Troof Score card — a transparent, RPC-grounded trust grade for a Sui coin. */
+/** The Troof Score card, a transparent, RPC-grounded trust grade for a Sui coin. */
 export function TokenScoreCard({ report }: { report: TokenReport }) {
   const s = report.score;
   const penalties = s.lineItems.filter((l) => l.penalty < 0);
@@ -44,12 +44,12 @@ export function TokenScoreCard({ report }: { report: TokenReport }) {
 
       {/* Stats strip */}
       <div className="mt-4 grid grid-cols-3 gap-3 border-y border-border/60 py-3 text-center">
-        <Stat label="supply" value={report.totalSupplyUi != null ? report.totalSupplyUi.toLocaleString(undefined, { maximumFractionDigits: 0 }) : "—"} />
-        <Stat label="age" value={report.ageDays != null ? `${Math.round(report.ageDays)}d` : "—"} />
-        <Stat label="metadata" value={report.metadataMutable == null ? "—" : report.metadataMutable ? "mutable" : "frozen"} />
+        <Stat label="supply" value={report.totalSupplyUi != null ? report.totalSupplyUi.toLocaleString(undefined, { maximumFractionDigits: 0 }) : "-"} />
+        <Stat label="age" value={report.ageDays != null ? `${Math.round(report.ageDays)}d` : "-"} />
+        <Stat label="metadata" value={report.metadataMutable == null ? "-" : report.metadataMutable ? "mutable" : "frozen"} />
       </div>
 
-      {/* Score breakdown — every line cites the raw on-chain field */}
+      {/* Score breakdown, every line cites the raw on-chain field */}
       <div className="mt-4 space-y-1.5">
         <div className="text-[10px] uppercase tracking-wider text-muted-foreground">how this grade was computed</div>
         {[...penalties, ...passed].map((l, i) => (
@@ -58,7 +58,7 @@ export function TokenScoreCard({ report }: { report: TokenReport }) {
               {l.penalty < 0 ? l.penalty : "0"}
             </span>
             <span className="text-muted-foreground">
-              <span className="text-foreground/80">{l.pillar}</span> — {l.detail}{" "}
+              <span className="text-foreground/80">{l.pillar}</span>, {l.detail}{" "}
               <span className="artifact opacity-50">[{l.field}]</span>
             </span>
           </div>

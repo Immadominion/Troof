@@ -21,7 +21,7 @@ interface Loaded {
 }
 
 async function loadProof(blobId: string): Promise<Loaded> {
-  // Re-fetch from a PUBLIC Walrus aggregator — no server of ours in this path.
+  // Re-fetch from a PUBLIC Walrus aggregator, no server of ours in this path.
   const res = await fetch(walrusBlobUrl(DEFAULT_NETWORK, blobId), { cache: "no-store" });
   if (!res.ok) throw new Error(`Blob not found on the public aggregator (HTTP ${res.status}).`);
   let sealed: SealedProof;
@@ -129,7 +129,7 @@ export function ProofVerifier({ blobId }: { blobId: string }) {
             <VerdictBadge status={status} size="lg" showSub={false} />
             <p className="mt-3 max-w-lg text-sm text-muted-foreground">
               {status === "verified" &&
-                "Re-fetched from a public Walrus aggregator and re-hashed in your browser — it matches the hash anchored on Sui. This report is exactly as sealed."}
+                "Re-fetched from a public Walrus aggregator and re-hashed in your browser, it matches the hash anchored on Sui. This report is exactly as sealed."}
               {status === "tampered" &&
                 "The re-computed hash does NOT match the hash anchored on Sui. These bytes are not the sealed report."}
             </p>
@@ -166,7 +166,7 @@ export function ProofVerifier({ blobId }: { blobId: string }) {
         </div>
       </div>
 
-      {/* The report itself — wallet report or token Troof Score */}
+      {/* The report itself, wallet report or token Troof Score */}
       {sealed.kind === "token" ? (
         <div className="mx-auto max-w-3xl px-5 py-10">
           <TokenScoreCard report={sealed.report as TokenReport} />
@@ -185,7 +185,7 @@ function HashRow({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="flex items-center justify-between gap-3">
       <dt className="artifact text-[10px] uppercase tracking-wider text-muted-foreground">{label}</dt>
-      <dd className="artifact truncate text-foreground/80">{value ?? "—"}</dd>
+      <dd className="artifact truncate text-foreground/80">{value ?? "-"}</dd>
     </div>
   );
 }

@@ -6,6 +6,9 @@ import { toast } from "sonner";
 import { ShieldCheck, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useTypingPlaceholder } from "@/lib/use-typing-placeholder";
+
+const VERIFY_PLACEHOLDERS = ["troof.site/p/…", "a Walrus blob id…", "paste a proof to re-check it"];
 
 /** Extract a blob id from a raw id or a full /p/{blobId} proof URL. */
 function parseBlobId(input: string): string | null {
@@ -20,6 +23,7 @@ function parseBlobId(input: string): string | null {
 export default function VerifyPage() {
   const router = useRouter();
   const [value, setValue] = useState("");
+  const placeholder = useTypingPlaceholder(VERIFY_PLACEHOLDERS);
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,7 +44,7 @@ export default function VerifyPage() {
         </h1>
         <p className="mx-auto mt-3 max-w-lg text-muted-foreground">
           Paste any Troof proof link or Walrus blob id. We re-fetch it from a
-          public Walrus aggregator and re-check the hash against Sui — no trust
+          public Walrus aggregator and re-check the hash against Sui, no trust
           in us required.
         </p>
       </div>
@@ -51,7 +55,7 @@ export default function VerifyPage() {
             <Input
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              placeholder="troof.site/p/…  or  Walrus blob id"
+              placeholder={placeholder}
               className="artifact h-12 border-0 bg-transparent text-base shadow-none focus-visible:ring-0"
               autoFocus
               spellCheck={false}

@@ -1,4 +1,4 @@
-// Troof Score — a transparent, RPC-grounded trust grade for a Sui coin.
+// Troof Score, a transparent, RPC-grounded trust grade for a Sui coin.
 // Start at 100, subtract named penalties (each citing the raw on-chain field it came from),
 // map to A–F. Signals that need an indexer/oracle are surfaced as "unverifiable", never faked.
 import type { TroofScore, TroofScoreLineItem } from "./types";
@@ -6,7 +6,7 @@ import type { TroofScore, TroofScoreLineItem } from "./types";
 export const RUBRIC_VERSION = "troof_score_v1";
 const SUI_TYPE = "0x2::sui::SUI";
 
-// Symbols whose canonical coin type we are CERTAIN of — used to catch impersonators.
+// Symbols whose canonical coin type we are CERTAIN of, used to catch impersonators.
 const CANONICAL: Record<string, string> = { SUI: SUI_TYPE };
 
 export interface ScoreSignals {
@@ -26,31 +26,31 @@ export function computeTroofScore(s: ScoreSignals): TroofScore {
     score += penalty;
   };
 
-  // 1) Identity / canonicity — max −40. Impersonating a canonical symbol is a critical fail.
+  // 1) Identity / canonicity, max −40. Impersonating a canonical symbol is a critical fail.
   const sym = (s.symbol ?? "").toUpperCase();
   let impersonator = false;
   if (s.canonical) {
-    sub(0, "Identity", "Canonical 0x2::sui::SUI — the real SUI.", "coinType");
+    sub(0, "Identity", "Canonical 0x2::sui::SUI, the real SUI.", "coinType");
   } else if (CANONICAL[sym] && CANONICAL[sym] !== s.coinType) {
     impersonator = true;
-    sub(-40, "Identity", `Claims the "${s.symbol}" symbol but is not canonical ${CANONICAL[sym]} — impersonator (critical).`, "coinType");
+    sub(-40, "Identity", `Claims the "${s.symbol}" symbol but is not canonical ${CANONICAL[sym]}, impersonator (critical).`, "coinType");
   } else {
     sub(0, "Identity", "Does not impersonate a known canonical symbol.", "symbol");
   }
 
-  // 2) Age / provenance — max −15
+  // 2) Age / provenance, max −15
   if (s.ageDays == null) sub(-5, "Age", "First-seen time could not be resolved.", "previousTransaction");
   else if (s.ageDays < 1) sub(-15, "Age", `Created less than 24h ago (${s.ageDays.toFixed(1)}d).`, "previousTransaction");
   else if (s.ageDays < 7) sub(-10, "Age", `Created less than 7 days ago (${s.ageDays.toFixed(1)}d).`, "previousTransaction");
   else if (s.ageDays < 30) sub(-5, "Age", `Created within the last 30 days (~${Math.round(s.ageDays)}d).`, "previousTransaction");
   else sub(0, "Age", `Established (~${Math.round(s.ageDays)}d old).`, "previousTransaction");
 
-  // 3) Metadata mutability — max −10
+  // 3) Metadata mutability, max −10
   if (s.metadataMutable == null) sub(-5, "Metadata", "Metadata mutability could not be determined.", "owner");
-  else if (s.metadataMutable) sub(-10, "Metadata", "CoinMetadata is mutable — name/icon can be changed after launch.", "owner");
+  else if (s.metadataMutable) sub(-10, "Metadata", "CoinMetadata is mutable, name/icon can be changed after launch.", "owner");
   else sub(0, "Metadata", "CoinMetadata is frozen (immutable).", "owner");
 
-  // 4) Supply transparency — max −10
+  // 4) Supply transparency, max −10
   if (s.totalSupply == null) sub(-10, "Supply", "Total supply not retrievable on-chain.", "totalSupply");
   else sub(0, "Supply", "Total supply is readable on-chain.", "totalSupply");
 

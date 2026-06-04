@@ -85,7 +85,7 @@ export const sealTokenTool = tool({
   inputSchema: z.object({
     network: networkSchema,
     coinType: z.string(),
-    headline: z.string().describe("one-line verdict, e.g. 'Impersonator of SUI — Troof Score F'"),
+    headline: z.string().describe("one-line verdict, e.g. 'Impersonator of SUI, Troof Score F'"),
     summary: z.string().describe("2–4 sentence plain-English summary"),
   }),
   execute: async ({ network, coinType, headline, summary }) => {

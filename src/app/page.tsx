@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { VerdictBadge } from "@/components/verdict-badge";
 import { shortHash } from "@/lib/format";
 
-// A real sealed proof (testnet) — re-hydrates + verifies against its on-chain anchor.
+// A real sealed proof (testnet), re-hydrates + verifies against its on-chain anchor.
 const SAMPLE_BLOB = "7CCNsFeVc4rA_babdC_f0cBjl7-dg5uk1A2_PbaDNS0";
 
 export default function Home() {
@@ -28,8 +28,8 @@ export default function Home() {
             </h1>
 
             <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
-              Ask an AI to analyze any Sui wallet. Its verdict — and every
-              on-chain call behind it — is sealed on Walrus and anchored on Sui.
+              Ask an AI to analyze any Sui wallet. Its verdict, and every
+              on-chain call behind it, is sealed on Walrus and anchored on Sui.
               Anyone can re-fetch it from a public network and prove it was never
               altered.
             </p>
@@ -77,7 +77,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-5 py-20">
           <div className="max-w-2xl">
             <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              Trust, then verify — in three steps
+              Trust, then verify, in three steps
             </h2>
             <p className="mt-3 text-muted-foreground">
               A screenshot of a wallet, or an AI&apos;s take on it, is just
@@ -91,19 +91,19 @@ export default function Home() {
               n="01"
               icon={ScanSearch}
               title="Analyze"
-              body="An AI agent reads the wallet live through Tatum's Sui RPC and Data APIs — balances, NFTs, staking, activity, and counterparty risk — then writes a verdict."
+              body="An AI agent reads the wallet live through Tatum's Sui RPC and Data APIs, balances, NFTs, staking, activity, and counterparty risk, then writes a verdict."
             />
             <Step
               n="02"
               icon={Database}
               title="Seal"
-              body="The full evidence bundle — every call, raw response, and the AI's reasoning — is sealed into a content-addressed Walrus blob, with its SHA-256 anchored on Sui."
+              body="The full evidence bundle, every call, raw response, and the AI's reasoning, is sealed into a content-addressed Walrus blob, with its SHA-256 anchored on Sui."
             />
             <Step
               n="03"
               icon={Link2}
               title="Verify"
-              body="Open the proof on any machine. It re-hydrates from a public Walrus aggregator and re-checks the hash against the chain — green if untouched, red if a single byte changed."
+              body="Open the proof on any machine. It re-hydrates from a public Walrus aggregator and re-checks the hash against the chain, green if untouched, red if a single byte changed."
             />
           </div>
         </div>
@@ -119,7 +119,7 @@ export default function Home() {
             <p className="mt-4 text-muted-foreground">
               A report on a company&apos;s database can be quietly edited or
               deleted. A Troof proof is a content-addressed blob on Walrus with
-              its hash anchored on Sui — there&apos;s no server of ours in the
+              its hash anchored on Sui, there&apos;s no server of ours in the
               verification path, and no way to change the bytes without changing
               the address.
             </p>
@@ -145,7 +145,7 @@ export default function Home() {
               />
               <TechRow
                 name="Walrus"
-                body="Decentralized blob storage — the durable, content-addressed record the whole product is built on."
+                body="Decentralized blob storage, the durable, content-addressed record the whole product is built on."
               />
               <TechRow
                 name="Sui"

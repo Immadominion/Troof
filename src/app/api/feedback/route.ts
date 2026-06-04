@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { rateLimit, clientIp, tooMany } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 
@@ -6,6 +7,8 @@ export const runtime = "nodejs";
 // Forwards to FEEDBACK_WEBHOOK_URL (Discord/Slack incoming webhook) if set; otherwise logs.
 // No database required.
 export async function POST(req: NextRequest) {
+  const rl = rateLimit(`feedback:${clientIp(req)}`, 10, 60_000);
+  if (!rl.ok) return tooMany(rl.retryAfter);
   const body = await req.json().catch(() => ({}));
   const message = String(body.message ?? "").slice(0, 4000);
   const rating = body.rating === "up" || body.rating === "down" ? body.rating : undefined;
@@ -20,11 +23,11 @@ export async function POST(req: NextRequest) {
       await fetch(url, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        // `content` works for Discord; `text` for Slack — send both keys.
+        // `content` works for Discord; `text` for Slack, send both keys.
         body: JSON.stringify({ content: line, text: line }),
       });
     } catch {
-      /* swallow — feedback must never break the app */
+      /* swallow, feedback must never break the app */
     }
   } else {
     console.log("[feedback]", { rating, message, meta });

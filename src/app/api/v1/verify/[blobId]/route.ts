@@ -3,14 +3,17 @@ import { getBlobText } from "@/lib/walrus";
 import { hashCanonical } from "@/lib/canonical";
 import { getObject } from "@/lib/tatum";
 import { DEFAULT_NETWORK } from "@/lib/constants";
+import { rateLimit, clientIp, tooMany } from "@/lib/ratelimit";
 import type { SealedProof } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// GET /api/v1/verify/:blobId  (FREE) — re-fetch from a public Walrus aggregator,
+// GET /api/v1/verify/:blobId  (FREE), re-fetch from a public Walrus aggregator,
 // re-hash, and compare against the on-chain anchored hash. Server-side mirror of /p.
-export async function GET(_req: Request, { params }: { params: Promise<{ blobId: string }> }) {
+export async function GET(req: Request, { params }: { params: Promise<{ blobId: string }> }) {
+  const rl = rateLimit(`v1verify:${clientIp(req)}`, 40, 60_000);
+  if (!rl.ok) return tooMany(rl.retryAfter);
   const { blobId } = await params;
   if (!/^[A-Za-z0-9_-]{10,}$/.test(blobId))
     return NextResponse.json({ error: "Invalid blobId" }, { status: 400 });

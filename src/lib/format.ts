@@ -1,6 +1,6 @@
 // Display helpers for crypto artifacts. Full number-formatting spec lands in Phase 5.
 
-/** 0x1234…abcd — truncate the middle of an address / id. */
+/** 0x1234…abcd, truncate the middle of an address / id. */
 export function truncateMiddle(s: string, start = 6, end = 4): string {
   if (!s) return "";
   if (s.length <= start + end + 1) return s;
@@ -12,7 +12,7 @@ export function shortAddress(s: string): string {
   return truncateMiddle(s, 6, 4);
 }
 
-/** Short form for a content hash / blob id (a touch longer — it's the proof). */
+/** Short form for a content hash / blob id (a touch longer, it's the proof). */
 export function shortHash(s: string): string {
   return truncateMiddle(s, 10, 8);
 }

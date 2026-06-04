@@ -4,6 +4,7 @@ import { streamText, convertToModelMessages, stepCountIs, type UIMessage } from 
 import { localAgentTools } from "@/lib/agent-tools";
 import { getTatumMcpTools } from "@/lib/mcp";
 import { anchorConfigured } from "@/lib/anchor";
+import { rateLimit, clientIp, tooMany } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 export const maxDuration = 60; // Vercel Fluid (Hobby) cap
@@ -18,16 +19,18 @@ Routing:
 Workflow:
 1. Call the matching analyze_* tool FIRST to get integrity-checked data (the token tool returns a Troof Score A–F).
 2. You may also call Tatum MCP tools (exchange rates, raw RPC via gateway_execute_rpc, supported-methods discovery) for extra context.
-3. Write a short, honest verdict. Always call out risks — especially tokens that impersonate the "SUI" symbol from a non-canonical type. Never trust a token's symbol; only canonical 0x2::sui::SUI is valued in USD. Be honest about what cannot be verified via RPC.
+3. Write a short, honest verdict. Always call out risks, especially tokens that impersonate the "SUI" symbol from a non-canonical type. Never trust a token's symbol; only canonical 0x2::sui::SUI is valued in USD. Be honest about what cannot be verified via RPC.
 4. Then call the matching seal_* tool with a one-line headline + a 2–4 sentence summary. This anchors the hash on Sui and stores the bundle on Walrus.
 5. Give the user the returned proof URL (/p/<blobId>) and one line on how to verify it.
 
-Style: concise, precise, plain text. Do NOT use emoji. Never invent numbers — use tool data. Use short markdown (a small table or bullets) where it aids clarity.`;
+Style: concise, precise, plain text. Do NOT use emoji. Never invent numbers, use tool data. Use short markdown (a small table or bullets) where it aids clarity.`;
 
 export async function POST(req: NextRequest) {
+  const rl = rateLimit(`agent:${clientIp(req)}`, 12, 60_000);
+  if (!rl.ok) return tooMany(rl.retryAfter);
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json(
-      { error: "ANTHROPIC_API_KEY not set — add it to .env.local to enable the agent." },
+      { error: "ANTHROPIC_API_KEY not set, add it to .env.local to enable the agent." },
       { status: 503 },
     );
   }
@@ -38,7 +41,7 @@ export async function POST(req: NextRequest) {
   // integrity + reliability; MCP adds the genuine Tatum MCP surface.
   const mcpTools = anchorConfigured() ? await getTatumMcpTools() : {};
 
-  // Fast = latest Haiku (cheap, snappy — great with this tightly-scoped prompt).
+  // Fast = latest Haiku (cheap, snappy, great with this tightly-scoped prompt).
   // Thinking = Sonnet for harder, multi-hop questions.
   const model = anthropic(mode === "thinking" ? "claude-sonnet-4-6" : "claude-haiku-4-5");
 
