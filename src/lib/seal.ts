@@ -6,6 +6,7 @@ import { anchorOnChain, ANCHOR_NETWORK } from "./anchor";
 import { putBlob } from "./walrus";
 import { hashCanonical } from "./canonical";
 import { WALRUS, type Network } from "./constants";
+import { dailyCap } from "./ratelimit";
 import type { SealedProof, AiVerdict, ProofKind, WalletReport, TokenReport } from "./types";
 
 export interface SealResult {
@@ -22,6 +23,11 @@ async function sealBundle(
   walletNetwork: Network,
   report: WalletReport | TokenReport,
 ): Promise<SealResult> {
+  // Global gas/storage ceiling — applied here so EVERY seal path (API route AND the AI agent's
+  // seal tool) shares one cap and a single signer can't be drained in a day.
+  if (!dailyCap("seal:global", 300)) {
+    throw new Error("Daily seal limit reached. Try again later.");
+  }
   const contentHash = await hashCanonical(report);
   const anchor = await anchorOnChain(contentHash, subject, walletNetwork);
 
