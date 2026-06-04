@@ -1,171 +1,207 @@
 import Link from "next/link";
-import { ArrowRight, ScanSearch, Database, Link2, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VerdictBadge } from "@/components/verdict-badge";
-import { shortHash } from "@/lib/format";
+import { ProofShowcase } from "@/components/landing/proof-showcase";
+import { WALRUS } from "@/lib/constants";
 
-// A real sealed proof (testnet), re-hydrates + verifies against its on-chain anchor.
+// A real sealed proof (testnet); the showcase + secondary CTA route to it,
+// where the hash is re-checked in-browser against its on-chain anchor.
 const SAMPLE_BLOB = "7CCNsFeVc4rA_babdC_f0cBjl7-dg5uk1A2_PbaDNS0";
+const PROOF_URL = `/p/${SAMPLE_BLOB}`;
+const AGG_HOST = new URL(WALRUS.testnet.aggregator).host;
 
 export default function Home() {
   return (
     <div>
-      {/* ───────────────────── Hero ───────────────────── */}
-      <section className="relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-        <div className="mx-auto max-w-6xl px-5 pb-20 pt-20 sm:pt-28">
-          <div className="mx-auto max-w-3xl text-center">
-            <span className="artifact inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-3 py-1 text-[11px] uppercase tracking-wider text-muted-foreground">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-60" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand" />
-              </span>
-              Verifiable AI · Sui · Walrus
+      {/* ───────────────────── Hero (aurora) ───────────────────── */}
+      <section className="troof-aurora troof-aurora--breathe relative isolate overflow-hidden">
+        <div className="mx-auto flex min-h-[86svh] max-w-3xl flex-col items-center justify-center px-6 pb-20 pt-28 text-center sm:px-8 lg:max-w-4xl lg:pb-28 lg:pt-36">
+          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3.5 py-1.5 text-xs font-medium tracking-wide text-muted-foreground backdrop-blur-sm">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-60" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand" />
             </span>
+            <span className="font-mono">Verifiable AI terminal for Sui</span>
+          </span>
 
-            <h1 className="mt-7 text-balance text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
-              AI you can <span className="text-verified">re-check</span> yourself.
-            </h1>
+          <h1 className="mt-7 text-balance text-[2.75rem] font-semibold leading-[1.03] tracking-tight text-foreground sm:text-6xl lg:text-7xl lg:leading-[0.98] lg:tracking-[-0.03em]">
+            Ask anything on Sui.
+            <span className="block text-muted-foreground">
+              Get an answer you can prove.
+            </span>
+          </h1>
 
-            <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
-              Ask an AI to analyze any Sui wallet. Its verdict, and every
-              on-chain call behind it, is sealed on Walrus and anchored on Sui.
-              Anyone can re-fetch it from a public network and prove it was never
-              altered.
-            </p>
+          <p className="mt-6 max-w-xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
+            Paste any Sui wallet or token. The AI reads it live and gives you a
+            straight, graded answer, then seals it to Walrus and anchors it on
+            Sui, so anyone can re-check it in their own browser. Lana, plus you
+            can prove it.
+          </p>
 
-            <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Button asChild size="lg" className="font-medium">
-                <Link href="/analyze">
-                  Analyze a wallet <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="font-medium">
-                <Link href={`/p/${SAMPLE_BLOB}`}>See a live proof</Link>
-              </Button>
-            </div>
+          <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
+            <Button
+              asChild
+              size="lg"
+              className="font-medium shadow-[0_8px_30px_-12px_oklch(1_0_0/0.25)] transition-shadow hover:shadow-[0_0_0_1px_oklch(1_0_0/0.2),0_10px_36px_-12px_oklch(1_0_0/0.35)]"
+            >
+              <Link href="/analyze">
+                Open the terminal <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="bg-card/40 font-medium backdrop-blur-sm"
+            >
+              <Link href={PROOF_URL}>See a live proof</Link>
+            </Button>
           </div>
 
-          {/* Proof artifact preview */}
-          <div className="mx-auto mt-16 max-w-2xl">
-            <div className="rounded-xl border border-border bg-card/60 p-1 shadow-2xl shadow-black/40">
-              <div className="rounded-lg border border-border/60 bg-background/60 p-5">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="artifact text-[11px] uppercase tracking-wider text-muted-foreground">
-                    troof proof
-                  </span>
-                  <VerdictBadge status="verified" size="sm" />
-                </div>
-                <dl className="mt-4 space-y-2.5 text-sm">
-                  <Row label="wallet" value="0x9a8f…c21d" />
-                  <Row label="walrus blob" value={shortHash(SAMPLE_BLOB)} accent />
-                  <Row label="sha-256" value="c343680a6e6c…48b9f2" />
-                  <Row label="sui anchor" value="0xa9ce92…3171f" />
-                </dl>
-                <div className="mt-4 border-t border-border/60 pt-3 text-xs text-muted-foreground">
-                  Re-fetched from a public Walrus aggregator · hash matches the
-                  on-chain anchor.
-                </div>
-              </div>
-            </div>
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 font-mono text-xs text-muted-foreground/80">
+            <span>Sealed to Walrus</span>
+            <span className="text-border">/</span>
+            <span>SHA-256 anchored on Sui</span>
+            <span className="text-border">/</span>
+            <span>Re-checked in your browser</span>
+            <span className="text-border">/</span>
+            <span>No server in the verify path</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ───────────────────── What you can do ───────────────────── */}
+      <section className="border-t border-border/80">
+        <div className="mx-auto max-w-6xl px-5 py-20 sm:py-24">
+          <div className="max-w-2xl">
+            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+              Three things, paste and go.
+            </h2>
+          </div>
+
+          <div className="mt-12 grid gap-px overflow-hidden rounded-xl border border-border bg-border md:grid-cols-3">
+            <Cando label="Read a wallet">
+              An integrity-checked report. USD value counts only canonical SUI,
+              so fake-SUI tokens cannot inflate the number.
+            </Cando>
+            <Cando
+              label="Grade a token"
+              chip={
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-verified/40 bg-verified-muted text-xs font-semibold text-verified">
+                  A
+                </span>
+              }
+            >
+              A Troof Score, an A to F trust grade from live on-chain signals.
+              Tokens faking the SUI symbol get flagged on sight.
+            </Cando>
+            <Cando label="Seal the answer">
+              Turn any answer into a proof anyone can verify, anywhere. One
+              click.
+            </Cando>
           </div>
         </div>
       </section>
 
       {/* ───────────────────── How it works ───────────────────── */}
-      <section id="how" className="border-t border-border/80 bg-card/20">
-        <div className="mx-auto max-w-6xl px-5 py-20">
+      <section className="border-t border-border/80 bg-card/20">
+        <div className="mx-auto max-w-6xl px-5 py-20 sm:py-24">
           <div className="max-w-2xl">
             <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              Trust, then verify, in three steps
+              Paste, read, seal, verify.
             </h2>
             <p className="mt-3 text-muted-foreground">
-              A screenshot of a wallet, or an AI&apos;s take on it, is just
-              pixels. Troof turns the analysis into something anyone can
-              independently re-check.
+              An answer on a screen is just pixels. Troof turns it into something
+              anyone can independently re-check.
             </p>
           </div>
 
-          <div className="mt-12 grid gap-5 md:grid-cols-3">
+          <div className="mt-12 grid gap-5 md:grid-cols-4">
             <Step
               n="01"
-              icon={ScanSearch}
-              title="Analyze"
-              body="An AI agent reads the wallet live through Tatum's Sui RPC and Data APIs, balances, NFTs, staking, activity, and counterparty risk, then writes a verdict."
+              title="Paste"
+              body="Drop in a Sui wallet, a token, or a proof link."
             />
             <Step
               n="02"
-              icon={Database}
-              title="Seal"
-              body="The full evidence bundle, every call, raw response, and the AI's reasoning, is sealed into a content-addressed Walrus blob, with its SHA-256 anchored on Sui."
+              title="Read"
+              body="The AI reads it live through Tatum, Sui RPC plus the Tatum MCP server."
             />
             <Step
               n="03"
-              icon={Link2}
+              title="Seal"
+              body="One click seals the answer and its evidence to Walrus and anchors the SHA-256 on Sui."
+            />
+            <Step
+              n="04"
               title="Verify"
-              body="Open the proof on any machine. It re-hydrates from a public Walrus aggregator and re-checks the hash against the chain, green if untouched, red if a single byte changed."
+              body="Anyone opens the link. Their browser re-fetches, re-hashes, and shows the verdict."
+            />
+          </div>
+
+          <div className="mt-8 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+            <VerdictBadge status="verified" size="sm" showSub={false} />
+            <span>if untouched</span>
+            <span className="text-border">·</span>
+            <span className="font-mono text-xs">no Troof server in the verify path</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ───────────────────── Proof + Score showcase ───────────────────── */}
+      <section className="border-t border-border/80">
+        <div className="mx-auto max-w-6xl px-5 py-20 sm:py-24">
+          <div className="max-w-2xl">
+            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+              This is a real proof. Open it yourself.
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Change one byte and the verdict flips. That is the whole idea.
+            </p>
+          </div>
+
+          <div className="mt-10">
+            <ProofShowcase
+              blobId={SAMPLE_BLOB}
+              proofUrl={PROOF_URL}
+              aggregatorHost={AGG_HOST}
             />
           </div>
         </div>
       </section>
 
-      {/* ───────────────────── Why decentralized ───────────────────── */}
-      <section className="border-t border-border/80">
-        <div className="mx-auto grid max-w-6xl gap-10 px-5 py-20 md:grid-cols-[1.1fr_1fr] md:items-center">
-          <div>
-            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              The proof outlives the server.
-            </h2>
-            <p className="mt-4 text-muted-foreground">
-              A report on a company&apos;s database can be quietly edited or
-              deleted. A Troof proof is a content-addressed blob on Walrus with
-              its hash anchored on Sui, there&apos;s no server of ours in the
-              verification path, and no way to change the bytes without changing
-              the address.
-            </p>
-            <div className="mt-7 flex flex-wrap items-center gap-3">
-              <VerdictBadge status="verified" />
-              <span className="text-muted-foreground">→</span>
-              <VerdictBadge status="tampered" />
-              <span className="ml-1 text-sm text-muted-foreground">
-                one byte is all it takes
-              </span>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-border bg-card/40 p-6">
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <Sparkles className="h-4 w-4 text-brand" />
-              Built on the tools that win this stack
-            </div>
-            <ul className="mt-5 space-y-4 text-sm">
-              <TechRow
-                name="Tatum"
-                body="Sui RPC gateway (8 methods) + Exchange-Rate Data API + the real Tatum MCP server (13 tools) as the AI's brain."
-              />
-              <TechRow
-                name="Walrus"
-                body="Decentralized blob storage, the durable, content-addressed record the whole product is built on."
-              />
-              <TechRow
-                name="Sui"
-                body="The integrity anchor: the proof's hash lives on-chain, verifiable without trusting us."
-              />
-            </ul>
-          </div>
+      {/* ───────────────────── Why it is different ───────────────────── */}
+      <section className="border-t border-border/80 bg-card/20">
+        <div className="mx-auto max-w-3xl px-5 py-24 text-center sm:py-28">
+          <h2 className="text-balance text-2xl font-semibold leading-snug tracking-tight sm:text-3xl">
+            Lana and Orb show you the chain.
+            <span className="block text-muted-foreground">
+              Troof lets you prove the answer.
+            </span>
+          </h2>
+          <p className="mt-5 font-mono text-sm text-muted-foreground/70">
+            an AI explorer for Sui, plus the one thing none of them have
+          </p>
         </div>
       </section>
 
-      {/* ───────────────────── CTA ───────────────────── */}
-      <section className="border-t border-border/80 bg-card/20">
-        <div className="mx-auto max-w-6xl px-5 py-16 text-center">
-          <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            Analyze a wallet. Get a proof.
+      {/* ───────────────────── Final CTA (aurora reprise) ───────────────────── */}
+      <section
+        className="troof-aurora relative isolate overflow-hidden border-t border-border/80"
+        style={{ "--aurora-strength": "0.5" } as React.CSSProperties}
+      >
+        <div className="mx-auto max-w-6xl px-5 py-24 text-center sm:py-28">
+          <h2 className="text-balance text-2xl font-semibold tracking-tight sm:text-4xl">
+            Stop trusting the answer. Verify it.
           </h2>
-          <div className="mt-7">
+          <p className="mx-auto mt-4 max-w-md text-muted-foreground">
+            Read a wallet, grade a token, seal the proof. It is free to try.
+          </p>
+          <div className="mt-8">
             <Button asChild size="lg" className="font-medium">
               <Link href="/analyze">
-                Start analyzing <ArrowRight className="h-4 w-4" />
+                Open the terminal <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
           </div>
@@ -175,49 +211,36 @@ export default function Home() {
   );
 }
 
-function Row({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
-  return (
-    <div className="flex items-center justify-between gap-4">
-      <dt className="artifact text-[11px] uppercase tracking-wider text-muted-foreground">
-        {label}
-      </dt>
-      <dd className={`artifact text-[13px] ${accent ? "text-brand" : "text-foreground/90"}`}>
-        {value}
-      </dd>
-    </div>
-  );
-}
-
-function Step({
-  n,
-  icon: Icon,
-  title,
-  body,
+function Cando({
+  label,
+  chip,
+  children,
 }: {
-  n: string;
-  icon: React.ElementType;
-  title: string;
-  body: string;
+  label: string;
+  chip?: React.ReactNode;
+  children: React.ReactNode;
 }) {
   return (
-    <div className="group relative rounded-xl border border-border bg-card/40 p-6 transition-colors hover:bg-card/70">
-      <div className="flex items-center justify-between">
-        <Icon className="h-5 w-5 text-foreground" />
-        <span className="artifact text-xs text-muted-foreground/70">{n}</span>
+    <div className="bg-card/40 p-6 transition-colors hover:bg-card/70">
+      <div className="flex items-center justify-between gap-3">
+        <span className="artifact text-xs uppercase tracking-wider text-foreground">
+          {label}
+        </span>
+        {chip}
       </div>
-      <h3 className="mt-4 text-lg font-medium tracking-tight">{title}</h3>
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
+      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        {children}
+      </p>
     </div>
   );
 }
 
-function TechRow({ name, body }: { name: string; body: string }) {
+function Step({ n, title, body }: { n: string; title: string; body: string }) {
   return (
-    <li className="flex gap-3">
-      <span className="artifact mt-0.5 w-16 shrink-0 text-[13px] text-foreground">
-        {name}
-      </span>
-      <span className="text-muted-foreground">{body}</span>
-    </li>
+    <div className="relative rounded-xl border border-border bg-card/40 p-6 transition-colors hover:bg-card/70">
+      <span className="artifact text-xs text-muted-foreground/70">{n}</span>
+      <h3 className="mt-3 text-lg font-medium tracking-tight">{title}</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
+    </div>
   );
 }

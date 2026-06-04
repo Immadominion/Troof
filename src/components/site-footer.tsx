@@ -26,6 +26,13 @@ export function SiteFooter() {
           <a href="https://sui.io" target="_blank" rel="noreferrer" className="hover:text-foreground">
             Sui
           </a>
+          <span className="text-border">·</span>
+          <Link href="/docs" className="hover:text-foreground">
+            Docs
+          </Link>
+          <Link href="/docs#api" className="hover:text-foreground">
+            API
+          </Link>
           <Link href="/verify" className="hover:text-foreground">
             Verify a proof
           </Link>

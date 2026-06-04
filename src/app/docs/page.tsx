@@ -12,8 +12,12 @@ const REPO = "https://github.com/Immadominion/Troof";
 
 export default function DocsPage() {
   return (
-    <div className="mx-auto max-w-3xl px-5 py-14">
-      <header>
+    <div>
+      <section
+        className="troof-aurora relative isolate overflow-hidden border-b border-border/60"
+        style={{ "--aurora-strength": "0.35" } as React.CSSProperties}
+      >
+        <header className="mx-auto max-w-3xl px-5 pb-10 pt-16">
         <h1 className="text-3xl font-semibold tracking-tight">Docs</h1>
         <p className="mt-2 text-muted-foreground">
           {SITE.name}, the verifiable AI terminal for Sui. An explorer whose answers you can re-check.
@@ -33,8 +37,10 @@ export default function DocsPage() {
             </a>
           ))}
         </nav>
-      </header>
+        </header>
+      </section>
 
+      <div className="mx-auto max-w-3xl px-5 pb-16 pt-12">
       <Section id="overview" icon={BookOpen} title="What is Troof">
         <p>
           Troof lets you ask an AI about any Sui <strong>wallet</strong> or <strong>token</strong>, and
@@ -142,6 +148,7 @@ GET /api/v1/verify/<blobId>       # machine-readable verdict (free)`}
         <Link href="/analyze" className="text-sm font-medium hover:underline">
           → Try Troof
         </Link>
+      </div>
       </div>
     </div>
   );
