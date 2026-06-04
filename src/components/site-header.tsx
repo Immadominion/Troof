@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { TroofWordmark } from "@/components/troof-mark";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const NAV = [
   { href: "/analyze", label: "Analyze" },
   { href: "/verify", label: "Verify" },
-  { href: "/#how", label: "How it works" },
+  { href: "/docs", label: "Docs" },
 ];
 
 export function SiteHeader() {
@@ -29,6 +30,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
+          <ThemeToggle />
           <Button asChild size="sm" className="font-medium">
             <Link href="/analyze">Analyze a wallet</Link>
           </Button>

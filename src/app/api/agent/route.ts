@@ -32,14 +32,18 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { messages }: { messages: UIMessage[] } = await req.json();
+  const { messages, mode }: { messages: UIMessage[]; mode?: "fast" | "thinking" } = await req.json();
 
   // Real Tatum MCP tools (stdio) + local Tatum-engine tools. analyze/seal stay local for
   // integrity + reliability; MCP adds the genuine Tatum MCP surface.
   const mcpTools = anchorConfigured() ? await getTatumMcpTools() : {};
 
+  // Fast = latest Haiku (cheap, snappy — great with this tightly-scoped prompt).
+  // Thinking = Sonnet for harder, multi-hop questions.
+  const model = anthropic(mode === "thinking" ? "claude-sonnet-4-6" : "claude-haiku-4-5");
+
   const result = streamText({
-    model: anthropic("claude-sonnet-4-6"),
+    model,
     system: SYSTEM,
     messages: await convertToModelMessages(messages),
     tools: { ...mcpTools, ...localAgentTools },

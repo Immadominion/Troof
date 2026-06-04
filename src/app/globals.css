@@ -153,8 +153,9 @@
   }
   html {
     @apply font-sans;
-    color-scheme: dark;
   }
+  :root { color-scheme: light; }
+  .dark { color-scheme: dark; }
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "ss01", "cv01", "cv03";
