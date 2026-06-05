@@ -22,21 +22,17 @@ export default function Home() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-60" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand" />
             </span>
-            <span className="font-mono">Verifiable AI terminal for Sui</span>
+            <span className="font-mono">Verifiable AI explorer for Sui</span>
           </span>
 
-          <h1 className="mt-7 text-balance text-[2.75rem] font-semibold leading-[1.03] tracking-tight text-foreground sm:text-6xl lg:text-7xl lg:leading-[0.98] lg:tracking-[-0.03em]">
-            Ask anything on Sui.
-            <span className="block text-muted-foreground">
-              Get an answer you can prove.
-            </span>
+          <h1 className="mt-7 text-balance text-6xl font-semibold leading-[0.98] tracking-tight text-foreground sm:text-7xl lg:text-8xl lg:tracking-[-0.03em]">
+            Ask Sui.
+            <span className="block text-muted-foreground">Prove it.</span>
           </h1>
 
-          <p className="mt-6 max-w-xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Paste any Sui wallet or token. The AI reads it live and gives you a
-            straight, graded answer, then seals it to Walrus and anchors it on
-            Sui, so anyone can re-check it in their own browser. Lana, plus you
-            can prove it.
+          <p className="mt-6 max-w-lg text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
+            Ask anything on Sui in plain words, a wallet, a token, a transaction,
+            an address. Read it live, then prove the answer.
           </p>
 
           <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
@@ -46,7 +42,7 @@ export default function Home() {
               className="font-medium shadow-[0_8px_30px_-12px_oklch(1_0_0/0.25)] transition-shadow hover:shadow-[0_0_0_1px_oklch(1_0_0/0.2),0_10px_36px_-12px_oklch(1_0_0/0.35)]"
             >
               <Link href="/analyze">
-                Open the terminal <ArrowRight className="h-4 w-4" />
+                Ask Troof <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
             <Button
@@ -55,7 +51,7 @@ export default function Home() {
               variant="outline"
               className="bg-card/40 font-medium backdrop-blur-sm"
             >
-              <Link href={PROOF_URL}>See a live proof</Link>
+              <Link href={PROOF_URL}>See a proof</Link>
             </Button>
           </div>
 
@@ -76,14 +72,14 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-5 py-20 sm:py-24">
           <div className="max-w-2xl">
             <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              Three things, paste and go.
+              What you can do.
             </h2>
           </div>
 
           <div className="mt-12 grid gap-px overflow-hidden rounded-xl border border-border bg-border md:grid-cols-3">
-            <Cando label="Read a wallet">
-              An integrity-checked report. USD value counts only canonical SUI,
-              so fake-SUI tokens cannot inflate the number.
+            <Cando label="Ask anything">
+              Type a question about any wallet, token, transaction, or object and
+              read it live on Sui.
             </Cando>
             <Cando
               label="Grade a token"
@@ -93,12 +89,12 @@ export default function Home() {
                 </span>
               }
             >
-              A Troof Score, an A to F trust grade from live on-chain signals.
-              Tokens faking the SUI symbol get flagged on sight.
+              Every coin gets a Troof Score, an A to F trust grade that flags
+              fake SUI on sight.
             </Cando>
-            <Cando label="Seal the answer">
-              Turn any answer into a proof anyone can verify, anywhere. One
-              click.
+            <Cando label="Seal and verify">
+              Turn any answer into a sealed proof anyone can re-check in their own
+              browser.
             </Cando>
           </div>
         </div>
@@ -109,7 +105,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-5 py-20 sm:py-24">
           <div className="max-w-2xl">
             <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              Paste, read, seal, verify.
+              Ask, read, seal, verify.
             </h2>
             <p className="mt-3 text-muted-foreground">
               An answer on a screen is just pixels. Troof turns it into something
@@ -120,23 +116,23 @@ export default function Home() {
           <div className="mt-12 grid gap-5 md:grid-cols-4">
             <Step
               n="01"
-              title="Paste"
-              body="Drop in a Sui wallet, a token, or a proof link."
+              title="Ask"
+              body="Type any question about Sui in plain language."
             />
             <Step
               n="02"
               title="Read"
-              body="The AI reads it live through Tatum, Sui RPC plus the Tatum MCP server."
+              body="Troof reads the chain live through Tatum, then answers."
             />
             <Step
               n="03"
               title="Seal"
-              body="One click seals the answer and its evidence to Walrus and anchors the SHA-256 on Sui."
+              body="Lock the answer to Walrus and anchor it on Sui."
             />
             <Step
               n="04"
               title="Verify"
-              body="Anyone opens the link. Their browser re-fetches, re-hashes, and shows the verdict."
+              body="Anyone re-checks it in their own browser. Green or red."
             />
           </div>
 
@@ -175,13 +171,15 @@ export default function Home() {
       <section className="border-t border-border/80 bg-card/20">
         <div className="mx-auto max-w-3xl px-5 py-24 text-center sm:py-28">
           <h2 className="text-balance text-2xl font-semibold leading-snug tracking-tight sm:text-3xl">
-            Lana and Orb show you the chain.
+            Most explorers hand you raw data
             <span className="block text-muted-foreground">
-              Troof lets you prove the answer.
+              and ask you to trust the screen.
             </span>
           </h2>
-          <p className="mt-5 font-mono text-sm text-muted-foreground/70">
-            an AI explorer for Sui, plus the one thing none of them have
+          <p className="mx-auto mt-5 max-w-2xl text-pretty leading-relaxed text-muted-foreground">
+            Troof reads Sui live, answers in plain words, and turns that answer
+            into a proof anyone can re-check, with no server of ours in the
+            verify path.
           </p>
         </div>
       </section>
@@ -193,15 +191,15 @@ export default function Home() {
       >
         <div className="mx-auto max-w-6xl px-5 py-24 text-center sm:py-28">
           <h2 className="text-balance text-2xl font-semibold tracking-tight sm:text-4xl">
-            Stop trusting the answer. Verify it.
+            Ask Sui anything.
           </h2>
           <p className="mx-auto mt-4 max-w-md text-muted-foreground">
-            Read a wallet, grade a token, seal the proof. It is free to try.
+            Get a live answer you can prove and share. It is free to try.
           </p>
           <div className="mt-8">
             <Button asChild size="lg" className="font-medium">
               <Link href="/analyze">
-                Open the terminal <ArrowRight className="h-4 w-4" />
+                Ask Troof <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
           </div>

@@ -7,7 +7,7 @@ export const SITE = {
   url: "https://troof.site",
   tagline: "Verifiable AI for Sui.",
   description:
-    "Ask an AI to analyze any Sui wallet. Its verdict, and every Tatum data call behind it, is sealed on Walrus and anchored on Sui, so anyone can re-fetch it and prove it was never altered.",
+    "Troof is a verifiable AI explorer for Sui. Ask about any wallet, token, or transaction in plain words, read it live, and prove the answer.",
   twitter: "@troof",
   repo: "https://github.com/troof/troof",
 } as const;
