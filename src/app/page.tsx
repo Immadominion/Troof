@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Search, Gauge, ShieldCheck, Check } from "lucide-react";
+import { Search, Gauge, ShieldCheck, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VerdictBadge } from "@/components/verdict-badge";
 import { ProofShowcase } from "@/components/landing/proof-showcase";
@@ -8,6 +8,7 @@ import { OrbitCluster } from "@/components/landing/orbit-cluster";
 import { WatchDemo } from "@/components/landing/watch-demo";
 import { TroofMark } from "@/components/troof-mark";
 import { WALRUS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 // A real sealed proof (testnet); the showcase + proof links route to it,
 // where the hash is re-checked in-browser against its on-chain anchor.
@@ -17,6 +18,20 @@ const AGG_HOST = new URL(WALRUS.testnet.aggregator).host;
 
 // Generous container that fills large screens without over-stretching prose.
 const WRAP = "mx-auto w-full max-w-[1400px] 2xl:max-w-[1560px] px-6 lg:px-10";
+
+// On big screens every section claims a full viewport and centers its content,
+// so the page reads as a deck of full-bleed screens (the reference's rhythm).
+const FULL = "2xl:flex 2xl:min-h-screen 2xl:flex-col 2xl:justify-center";
+
+// Primary CTA sizing — scales up with the screen. Shared by the hero and the
+// final CTA so the two big "Ask Troof" buttons always match.
+const CTA_SIZE =
+  "h-11 gap-2 px-5 text-[0.95rem] xl:h-12 xl:px-6 xl:text-base 2xl:h-14 2xl:px-9 2xl:text-lg";
+
+// Section heading + lead, tuned to grow on big screens.
+const H2 =
+  "font-display text-3xl font-semibold tracking-tight sm:text-4xl 2xl:text-6xl";
+const LEAD = "text-muted-foreground 2xl:text-lg";
 
 const FAQ = [
   {
@@ -63,7 +78,7 @@ export default function Home() {
           {/* copy */}
           <div className="relative lg:self-start">
             <Star className="absolute -left-3 top-0 w-5 sm:-left-7" />
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3.5 py-1.5 text-xs font-medium tracking-wide text-muted-foreground backdrop-blur-sm">
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3.5 py-1.5 text-xs font-medium tracking-wide text-muted-foreground backdrop-blur-sm 2xl:text-sm">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-60" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand" />
@@ -75,28 +90,31 @@ export default function Home() {
               Ask Sui.
               <br />
               Prove it.
-              <Star className="ml-3 inline-block w-7 align-top" />
+              <Star className="ml-3 inline-block w-7 align-top 2xl:w-9" />
             </h1>
 
-            <p className="mt-6 max-w-md text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
+            <p className="mt-6 max-w-md text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg 2xl:max-w-lg 2xl:text-xl">
               Ask anything on Sui in plain words: a wallet, a token, a
               transaction, an address. Read it live, then prove the answer.
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4 2xl:mt-10">
               <Button
                 asChild
                 size="lg"
-                className="font-medium shadow-[0_10px_30px_-10px_var(--brand-glow)] transition-shadow hover:shadow-[0_12px_38px_-10px_var(--brand-glow)]"
+                className={cn(
+                  CTA_SIZE,
+                  "font-medium shadow-[0_10px_30px_-10px_var(--brand-glow)] transition-shadow hover:shadow-[0_12px_38px_-10px_var(--brand-glow)]",
+                )}
               >
                 <Link href="/analyze">
-                  Ask Troof <ArrowLong className="ml-1 w-6" />
+                  Ask Troof <ArrowLong className="ml-1 w-6 2xl:w-7" />
                 </Link>
               </Button>
               <WatchDemo />
             </div>
 
-            <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-1.5 font-mono text-xs text-muted-foreground">
+            <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-1.5 font-mono text-xs text-muted-foreground 2xl:text-sm">
               <span>Sealed to Walrus</span>
               <span className="text-border">/</span>
               <span>Anchored on Sui</span>
@@ -105,6 +123,17 @@ export default function Home() {
                 See a live proof
               </Link>
             </div>
+
+            {/* z-curve annotation ribbon — flows just below the copy so it keeps a
+                fixed gap from the trust strip at any screen height, sitting in the
+                lower-left like the reference. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/z-curve.svg"
+              alt=""
+              aria-hidden
+              className="pointer-events-none mt-12 ml-2 hidden w-[20rem] rotate-[-3deg] lg:block 2xl:mt-16 2xl:w-[28rem]"
+            />
           </div>
 
           {/* product visual */}
@@ -113,88 +142,75 @@ export default function Home() {
               <HeroAnswer />
             </BrowserMock>
           </div>
-
-          {/* z-curve annotation ribbon — lives in the lower-left clear space,
-              aligned to the content edge. Only shown when the hero is tall
-              enough to hold it without crowding the copy. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/z-curve.svg"
-            alt=""
-            aria-hidden
-            className="pointer-events-none absolute bottom-6 left-0 z-10 hidden w-[20rem] rotate-[-3deg] lg:block 2xl:w-[23rem]"
-          />
         </div>
       </section>
 
       {/* ───────────────────── What you can do ───────────────────── */}
-      <section className={`${WRAP} py-20 sm:py-28`}>
-        <Eyebrow>What you can do</Eyebrow>
-        <div className="flex items-center gap-3">
-          <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl 2xl:text-5xl">
-            One explorer, three moves.
-          </h2>
-          <Star className="w-5" />
-        </div>
-
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
-          <Cando icon={Search} title="Ask anything">
-            Type a question about any wallet, token, transaction, or object and
-            read it live on Sui.
-          </Cando>
-
-          {/* promoted card breaks the 3-identical pattern */}
-          <div className="rounded-2xl border border-brand-ring bg-brand-soft p-6 sm:p-7">
-            <div className="flex items-center justify-between">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-brand text-brand-foreground">
-                <Gauge className="h-[18px] w-[18px]" />
-              </span>
-              <div className="flex items-center gap-1">
-                {(["A", "B", "C", "D", "F"] as const).map((g) => (
-                  <span
-                    key={g}
-                    className={`flex h-6 w-6 items-center justify-center rounded-md border text-[11px] font-semibold tabular-nums ${g === "A"
-                      ? "border-verified/40 bg-verified-muted text-verified"
-                      : "border-border bg-card text-muted-foreground"
-                      }`}
-                  >
-                    {g}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <h3 className="mt-4 text-lg font-medium tracking-tight">Grade a token</h3>
-            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-              Every coin gets a Troof Score, an A to F trust grade that flags
-              fake SUI on sight.
-            </p>
+      <section className={FULL}>
+        <div className={`${WRAP} py-20 sm:py-28`}>
+          <Eyebrow>What you can do</Eyebrow>
+          <div className="flex items-center gap-3">
+            <h2 className={H2}>One explorer, three moves.</h2>
+            <Star className="w-5 2xl:w-6" />
           </div>
 
-          <Cando icon={ShieldCheck} title="Seal and verify">
-            Turn any answer into a sealed proof anyone can re-check in their own
-            browser.
-          </Cando>
+          <div className="mt-12 grid gap-5 md:grid-cols-3 2xl:mt-16 2xl:gap-7">
+            <Cando icon={Search} title="Ask anything">
+              Type a question about any wallet, token, transaction, or object and
+              read it live on Sui.
+            </Cando>
+
+            {/* promoted card breaks the 3-identical pattern */}
+            <div className="rounded-2xl border border-brand-ring bg-brand-soft p-6 sm:p-7 2xl:p-9">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-brand text-brand-foreground 2xl:h-11 2xl:w-11">
+                  <Gauge className="h-[18px] w-[18px] 2xl:h-5 2xl:w-5" />
+                </span>
+                <div className="flex items-center gap-1">
+                  {(["A", "B", "C", "D", "F"] as const).map((g) => (
+                    <span
+                      key={g}
+                      className={`flex h-6 w-6 items-center justify-center rounded-md border text-[11px] font-semibold tabular-nums 2xl:h-7 2xl:w-7 2xl:text-xs ${g === "A"
+                        ? "border-verified/40 bg-verified-muted text-verified"
+                        : "border-border bg-card text-muted-foreground"
+                        }`}
+                    >
+                      {g}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <h3 className="mt-4 text-lg font-medium tracking-tight 2xl:text-xl">Grade a token</h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground 2xl:text-base">
+                Every coin gets a Troof Score, an A to F trust grade that flags
+                fake SUI on sight.
+              </p>
+            </div>
+
+            <Cando icon={ShieldCheck} title="Seal and verify">
+              Turn any answer into a sealed proof anyone can re-check in their own
+              browser.
+            </Cando>
+          </div>
         </div>
       </section>
 
       {/* ───────────────────── How it works ───────────────────── */}
-      <section className="border-t border-border/70 bg-secondary/40">
+      <section className={cn("border-t border-border/70 bg-secondary/40", FULL)}>
         <div className={`${WRAP} py-20 sm:py-28`}>
           <Eyebrow>How it works</Eyebrow>
-          <h2 className="max-w-2xl font-display text-3xl font-semibold tracking-tight sm:text-4xl 2xl:text-5xl">
-            Ask, read, seal, verify.
-          </h2>
-          <p className="mt-3 max-w-xl text-muted-foreground">
+          <h2 className={cn(H2, "max-w-2xl")}>Ask, read, seal, verify.</h2>
+          <p className={cn("mt-3 max-w-xl", LEAD)}>
             An answer on a screen is just pixels. Troof turns it into something
             anyone can independently re-check.
           </p>
 
-          <div className="relative mt-12">
+          <div className="relative mt-12 2xl:mt-16">
             <div
               aria-hidden
-              className="absolute inset-x-[12%] top-[2.35rem] hidden border-t border-dashed border-brand-ring md:block"
+              className="absolute inset-x-[12%] top-[2.35rem] hidden border-t border-dashed border-brand-ring md:block 2xl:top-[2.85rem]"
             />
-            <div className="relative grid gap-5 md:grid-cols-4">
+            <div className="relative grid gap-5 md:grid-cols-4 2xl:gap-7">
               <Step n="01" title="Ask" body="Type any question about Sui in plain language." />
               <Step n="02" title="Read" body="Troof reads the chain live through Tatum, then answers." />
               <Step n="03" title="Seal" body="Lock the answer to Walrus and anchor it on Sui." />
@@ -202,7 +218,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+          <div className="mt-8 flex flex-wrap items-center gap-3 text-sm text-muted-foreground 2xl:mt-10">
             <VerdictBadge status="verified" size="sm" showSub={false} />
             <span>if untouched</span>
             <span className="text-border">·</span>
@@ -212,36 +228,39 @@ export default function Home() {
       </section>
 
       {/* ───────────────────── Proof + Score showcase ───────────────────── */}
-      <section className={`${WRAP} py-20 sm:py-28`}>
-        <Eyebrow>See it for yourself</Eyebrow>
-        <h2 className="max-w-2xl font-display text-3xl font-semibold tracking-tight sm:text-4xl 2xl:text-5xl">
-          This is a real proof. Open it yourself.
-        </h2>
-        <p className="mt-3 max-w-xl text-muted-foreground">
-          Change one byte and the verdict flips. That is the whole idea.
-        </p>
-        <div className="mt-10">
-          <ProofShowcase blobId={SAMPLE_BLOB} proofUrl={PROOF_URL} aggregatorHost={AGG_HOST} />
+      <section className={FULL}>
+        <div className={`${WRAP} py-20 sm:py-28`}>
+          <Eyebrow>See it for yourself</Eyebrow>
+          <h2 className={cn(H2, "max-w-2xl")}>This is a real proof. Open it yourself.</h2>
+          <p className={cn("mt-3 max-w-xl", LEAD)}>
+            Change one byte and the verdict flips. That is the whole idea.
+          </p>
+          <div className="mt-10 2xl:mt-14">
+            <ProofShowcase blobId={SAMPLE_BLOB} proofUrl={PROOF_URL} aggregatorHost={AGG_HOST} />
+          </div>
         </div>
       </section>
 
       {/* ───────────────────── Why you can trust it ───────────────────── */}
-      <section className="troof-blobs relative isolate overflow-hidden border-t border-border/70" style={{ "--blob-strength": "0.5" } as React.CSSProperties}>
+      <section
+        className={cn("troof-blobs relative isolate overflow-hidden border-t border-border/70", FULL)}
+        style={{ "--blob-strength": "0.5" } as React.CSSProperties}
+      >
         <div className={`${WRAP} grid items-center gap-12 py-20 sm:py-28 lg:grid-cols-2`}>
           <div className="relative">
-            <Star className="absolute -left-2 -top-3 w-5" />
+            <Star className="absolute -left-2 -top-3 w-5 2xl:w-6" />
             <Eyebrow>Why you can trust it</Eyebrow>
-            <h2 className="text-balance font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl 2xl:text-5xl">
+            <h2 className={cn(H2, "text-balance leading-tight")}>
               Most explorers hand you raw data and ask you to trust the screen.
             </h2>
-            <div className="mt-6 max-w-md rounded-2xl rounded-bl-sm border border-brand-ring bg-brand-soft px-4 py-3 text-sm leading-relaxed text-foreground/90">
+            <div className="mt-6 max-w-md rounded-2xl rounded-bl-sm border border-brand-ring bg-brand-soft px-4 py-3 text-sm leading-relaxed text-foreground/90 2xl:max-w-lg 2xl:px-5 2xl:py-4 2xl:text-base">
               We are not in the verify path. Anyone re-fetches the evidence and
               re-hashes it themselves.
             </div>
           </div>
 
           <OrbitCluster
-            className="order-first lg:order-none"
+            className="order-first lg:order-none 2xl:max-w-lg"
             center={
               <div className="flex h-16 w-16 flex-col items-center justify-center rounded-2xl border border-border bg-card text-foreground shadow-lg shadow-foreground/5">
                 <TroofMark className="h-6 w-6 text-brand" />
@@ -261,17 +280,15 @@ export default function Home() {
       </section>
 
       {/* ───────────────────── FAQ ───────────────────── */}
-      <section className="border-t border-border/70 bg-secondary/40">
+      <section className={cn("border-t border-border/70 bg-secondary/40", FULL)}>
         <div className={`${WRAP} py-20 sm:py-28`}>
           <Eyebrow>FAQ</Eyebrow>
           <div className="flex items-center gap-3">
-            <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl 2xl:text-5xl">
-              Questions, answered.
-            </h2>
-            <Star className="w-5" />
+            <h2 className={H2}>Questions, answered.</h2>
+            <Star className="w-5 2xl:w-6" />
           </div>
 
-          <div className="mt-10 grid gap-4 md:grid-cols-2">
+          <div className="mt-10 grid gap-4 md:grid-cols-2 2xl:mt-14 2xl:gap-6">
             {FAQ.map((item, i) => (
               <FaqCard key={item.q} q={item.q} a={item.a} accent={FAQ_ACCENT.has(i)} />
             ))}
@@ -280,37 +297,39 @@ export default function Home() {
       </section>
 
       {/* ───────────────────── Final CTA (dark banner) ───────────────────── */}
-      <section className={`${WRAP} py-16 sm:py-24`}>
-        <div
-          className="dark troof-aurora relative isolate overflow-hidden rounded-[2rem] bg-background px-6 py-20 text-center text-foreground sm:px-12 sm:py-28"
-          style={{
-            "--aurora-strength": "0.7",
-            "--aurora-1": "oklch(0.60 0.085 256)",
-            "--aurora-2": "oklch(0.50 0.07 258)",
-            "--aurora-3": "oklch(0.42 0.05 255)",
-            "--aurora-haze": "oklch(0.34 0.03 258)",
-          } as React.CSSProperties}
-        >
-          <Star className="absolute left-[12%] top-12 w-6" />
-          <Star className="absolute right-[16%] top-20 w-4 opacity-70" />
-          <Star className="absolute bottom-14 left-[24%] w-3.5 opacity-60" />
+      <section className={FULL}>
+        <div className={`${WRAP} py-16 sm:py-24`}>
+          <div
+            className="dark troof-aurora relative isolate overflow-hidden rounded-[2rem] bg-background px-6 py-20 text-center text-foreground sm:px-12 sm:py-28 2xl:py-40"
+            style={{
+              "--aurora-strength": "0.7",
+              "--aurora-1": "oklch(0.60 0.085 256)",
+              "--aurora-2": "oklch(0.50 0.07 258)",
+              "--aurora-3": "oklch(0.42 0.05 255)",
+              "--aurora-haze": "oklch(0.34 0.03 258)",
+            } as React.CSSProperties}
+          >
+            <Star className="absolute left-[12%] top-12 w-6 2xl:w-8" />
+            <Star className="absolute right-[16%] top-20 w-4 opacity-70 2xl:w-6" />
+            <Star className="absolute bottom-14 left-[24%] w-3.5 opacity-60 2xl:w-5" />
 
-          <h2 className="font-display text-4xl font-semibold tracking-tight sm:text-6xl">
-            Ask Sui anything.
-          </h2>
-          <p className="mx-auto mt-4 max-w-md text-muted-foreground">
-            Get a live answer you can prove and share. It is free to try.
-          </p>
-          <div className="mt-9">
-            <Button
-              asChild
-              size="lg"
-              className="font-medium shadow-[0_10px_36px_-10px_var(--brand-glow)]"
-            >
-              <Link href="/analyze">
-                Ask Troof <ArrowLong className="ml-1 w-6" />
-              </Link>
-            </Button>
+            <h2 className="font-display text-4xl font-semibold tracking-tight sm:text-6xl 2xl:text-7xl">
+              Ask Sui anything.
+            </h2>
+            <p className="mx-auto mt-4 max-w-md text-muted-foreground 2xl:mt-6 2xl:max-w-lg 2xl:text-lg">
+              Get a live answer you can prove and share. It is free to try.
+            </p>
+            <div className="mt-9 2xl:mt-12">
+              <Button
+                asChild
+                size="lg"
+                className={cn(CTA_SIZE, "font-medium shadow-[0_10px_36px_-10px_var(--brand-glow)]")}
+              >
+                <Link href="/analyze">
+                  Ask Troof <ArrowLong className="ml-1 w-6 2xl:w-7" />
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
@@ -322,7 +341,7 @@ export default function Home() {
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mb-3 text-xs font-medium uppercase tracking-[0.18em] text-brand">
+    <div className="mb-3 text-xs font-medium uppercase tracking-[0.18em] text-brand 2xl:text-sm">
       {children}
     </div>
   );
@@ -391,24 +410,24 @@ function Cando({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-6 shadow-sm shadow-foreground/[0.03] transition-shadow hover:shadow-md hover:shadow-foreground/[0.05] sm:p-7">
-      <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-secondary text-foreground">
-        <Icon className="h-[18px] w-[18px]" />
+    <div className="rounded-2xl border border-border bg-card p-6 shadow-sm shadow-foreground/[0.03] transition-shadow hover:shadow-md hover:shadow-foreground/[0.05] sm:p-7 2xl:p-9">
+      <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-secondary text-foreground 2xl:h-11 2xl:w-11">
+        <Icon className="h-[18px] w-[18px] 2xl:h-5 2xl:w-5" />
       </span>
-      <h3 className="mt-4 text-lg font-medium tracking-tight">{title}</h3>
-      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{children}</p>
+      <h3 className="mt-4 text-lg font-medium tracking-tight 2xl:text-xl">{title}</h3>
+      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground 2xl:text-base">{children}</p>
     </div>
   );
 }
 
 function Step({ n, title, body }: { n: string; title: string; body: string }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-6 shadow-sm shadow-foreground/[0.03] sm:p-7">
-      <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-brand-soft font-mono text-xs font-semibold text-brand">
+    <div className="rounded-2xl border border-border bg-card p-6 shadow-sm shadow-foreground/[0.03] sm:p-7 2xl:p-9">
+      <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-brand-soft font-mono text-xs font-semibold text-brand 2xl:h-11 2xl:w-11 2xl:text-sm">
         {n}
       </span>
-      <h3 className="mt-4 text-lg font-medium tracking-tight">{title}</h3>
-      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{body}</p>
+      <h3 className="mt-4 text-lg font-medium tracking-tight 2xl:text-xl">{title}</h3>
+      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground 2xl:text-base">{body}</p>
     </div>
   );
 }
@@ -416,17 +435,17 @@ function Step({ n, title, body }: { n: string; title: string; body: string }) {
 function FaqCard({ q, a, accent }: { q: string; a: string; accent?: boolean }) {
   return (
     <div
-      className={`rounded-2xl border p-6 sm:p-7 ${accent
+      className={`rounded-2xl border p-6 sm:p-7 2xl:p-9 ${accent
         ? "border-transparent bg-brand text-brand-foreground"
         : "border-border bg-card shadow-sm shadow-foreground/[0.03]"
         }`}
     >
-      <h3 className="flex items-start gap-2 text-base font-semibold tracking-tight">
-        {accent && <Check className="mt-0.5 h-4 w-4 shrink-0 opacity-80" />}
+      <h3 className="flex items-start gap-2 text-base font-semibold tracking-tight 2xl:text-lg">
+        {accent && <Check className="mt-0.5 h-4 w-4 shrink-0 opacity-80 2xl:h-5 2xl:w-5" />}
         {q}
       </h3>
       <p
-        className={`mt-2 text-sm leading-relaxed ${accent ? "text-brand-foreground/85" : "text-muted-foreground"
+        className={`mt-2 text-sm leading-relaxed 2xl:text-base ${accent ? "text-brand-foreground/85" : "text-muted-foreground"
           }`}
       >
         {a}

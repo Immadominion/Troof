@@ -20,12 +20,12 @@ export function WatchDemo({ className }: { className?: string }) {
         <button
           type="button"
           className={cn(
-            "group inline-flex items-center gap-2.5 text-sm font-medium text-foreground transition-colors hover:text-foreground/70",
+            "group inline-flex items-center gap-2.5 text-sm font-medium text-foreground transition-colors hover:text-foreground/70 2xl:gap-3 2xl:text-base",
             className,
           )}
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card shadow-sm shadow-foreground/[0.05] transition-colors group-hover:border-foreground/25">
-            <Play className="h-4 w-4 translate-x-px fill-current" />
+          <span className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card shadow-sm shadow-foreground/[0.05] transition-colors group-hover:border-foreground/25 2xl:h-14 2xl:w-14">
+            <Play className="h-4 w-4 translate-x-px fill-current 2xl:h-5 2xl:w-5" />
           </span>
           Watch demo
         </button>
