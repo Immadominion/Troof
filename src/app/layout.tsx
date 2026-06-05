@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import "@mysten/dapp-kit/dist/index.css";
 import "driver.js/dist/driver.css";
@@ -11,6 +12,17 @@ import { SITE } from "@/lib/constants";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+
+// Clash Display (local) — the display face for big headlines, matching the brand reference.
+const clashDisplay = localFont({
+  variable: "--font-clash",
+  display: "swap",
+  src: [
+    { path: "./fonts/ClashDisplay-Medium.otf", weight: "500", style: "normal" },
+    { path: "./fonts/ClashDisplay-Semibold.otf", weight: "600", style: "normal" },
+    { path: "./fonts/ClashDisplay-Bold.otf", weight: "700", style: "normal" },
+  ],
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -39,7 +51,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full`}
+      className={`${geistSans.variable} ${geistMono.variable} ${clashDisplay.variable} h-full`}
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col">

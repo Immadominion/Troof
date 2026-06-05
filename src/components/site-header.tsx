@@ -12,7 +12,7 @@ const NAV = [
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/70 backdrop-blur-xl">
-      <div className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-5">
+      <div className="mx-auto flex h-16 w-full max-w-[1400px] items-center gap-6 px-6 lg:px-10 2xl:max-w-[1560px]">
         <Link href="/" className="shrink-0 text-foreground transition-opacity hover:opacity-80">
           <TroofWordmark />
         </Link>

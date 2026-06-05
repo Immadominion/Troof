@@ -57,3 +57,6 @@ context.txt
 
 # keep the env TEMPLATE even though the .env* rule above ignores all env files
 !.env.example
+
+# Font source archive (extracted into src/app/fonts)
+clash-display-font.zip

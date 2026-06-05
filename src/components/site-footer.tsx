@@ -32,7 +32,7 @@ const COLS: { title: string; links: { label: string; href: string; external?: bo
 export function SiteFooter() {
   return (
     <footer className="border-t border-border/70">
-      <div className="mx-auto max-w-6xl px-5 py-14">
+      <div className="mx-auto w-full max-w-[1400px] px-6 py-14 lg:px-10 2xl:max-w-[1560px]">
         <div className="grid gap-10 md:grid-cols-[1.6fr_1fr_1fr_1fr]">
           {/* brand */}
           <div>
