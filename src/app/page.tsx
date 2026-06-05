@@ -57,11 +57,11 @@ export default function Home() {
           src="/ellipse.png"
           alt=""
           aria-hidden
-          className="pointer-events-none absolute -right-40 -top-24 -z-10 hidden w-[820px] opacity-50 lg:block dark:opacity-30"
+          className="pointer-events-none absolute -right-0 -top-0 -z-10 hidden w-[500px] opacity-50 lg:block dark:opacity-30"
         />
-        <div className={`${WRAP} grid items-center gap-12 pb-20 pt-20 sm:pt-24 lg:min-h-[88vh] lg:grid-cols-[1.05fr_1fr] lg:gap-12 lg:pb-28`}>
+        <div className={`${WRAP} relative grid items-center gap-12 pb-20 pt-20 sm:pt-24 lg:min-h-[max(88vh,60rem)] lg:grid-cols-[1.05fr_1fr] lg:gap-12 lg:pb-28`}>
           {/* copy */}
-          <div className="relative">
+          <div className="relative lg:self-start">
             <Star className="absolute -left-3 top-0 w-5 sm:-left-7" />
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3.5 py-1.5 text-xs font-medium tracking-wide text-muted-foreground backdrop-blur-sm">
               <span className="relative flex h-1.5 w-1.5">
@@ -109,18 +109,21 @@ export default function Home() {
 
           {/* product visual */}
           <div className="relative">
-            {/* z-curve hero annotation */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/z-curve.svg"
-              alt=""
-              aria-hidden
-              className="pointer-events-none absolute -left-10 -top-16 z-10 hidden w-44 rotate-[-4deg] lg:block"
-            />
             <BrowserMock url="troof.site/analyze" glow>
               <HeroAnswer />
             </BrowserMock>
           </div>
+
+          {/* z-curve annotation ribbon — lives in the lower-left clear space,
+              aligned to the content edge. Only shown when the hero is tall
+              enough to hold it without crowding the copy. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/z-curve.svg"
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute bottom-6 left-0 z-10 hidden w-[20rem] rotate-[-3deg] lg:block 2xl:w-[23rem]"
+          />
         </div>
       </section>
 
@@ -150,11 +153,10 @@ export default function Home() {
                 {(["A", "B", "C", "D", "F"] as const).map((g) => (
                   <span
                     key={g}
-                    className={`flex h-6 w-6 items-center justify-center rounded-md border text-[11px] font-semibold tabular-nums ${
-                      g === "A"
-                        ? "border-verified/40 bg-verified-muted text-verified"
-                        : "border-border bg-card text-muted-foreground"
-                    }`}
+                    className={`flex h-6 w-6 items-center justify-center rounded-md border text-[11px] font-semibold tabular-nums ${g === "A"
+                      ? "border-verified/40 bg-verified-muted text-verified"
+                      : "border-border bg-card text-muted-foreground"
+                      }`}
                   >
                     {g}
                   </span>
@@ -414,20 +416,18 @@ function Step({ n, title, body }: { n: string; title: string; body: string }) {
 function FaqCard({ q, a, accent }: { q: string; a: string; accent?: boolean }) {
   return (
     <div
-      className={`rounded-2xl border p-6 sm:p-7 ${
-        accent
-          ? "border-transparent bg-brand text-brand-foreground"
-          : "border-border bg-card shadow-sm shadow-foreground/[0.03]"
-      }`}
+      className={`rounded-2xl border p-6 sm:p-7 ${accent
+        ? "border-transparent bg-brand text-brand-foreground"
+        : "border-border bg-card shadow-sm shadow-foreground/[0.03]"
+        }`}
     >
       <h3 className="flex items-start gap-2 text-base font-semibold tracking-tight">
         {accent && <Check className="mt-0.5 h-4 w-4 shrink-0 opacity-80" />}
         {q}
       </h3>
       <p
-        className={`mt-2 text-sm leading-relaxed ${
-          accent ? "text-brand-foreground/85" : "text-muted-foreground"
-        }`}
+        className={`mt-2 text-sm leading-relaxed ${accent ? "text-brand-foreground/85" : "text-muted-foreground"
+          }`}
       >
         {a}
       </p>
