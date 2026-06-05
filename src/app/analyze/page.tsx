@@ -161,7 +161,7 @@ export default function AnalyzePage() {
         : `${Math.max(0, FREE_ANALYSES - uses)} free left`;
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-3.5rem)] max-w-3xl flex-col px-5">
+    <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-5 pt-20 sm:pt-24">
       <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
       <PremiumGate
         open={gateOpen} onOpenChange={setGateOpen} connected={!!account} canPay={!!TREASURY}

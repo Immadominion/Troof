@@ -10,5 +10,9 @@ export default async function AnalyzeRunPage({
 }) {
   const { network, address } = await params;
   if (!(network in NETWORKS) || !isLikelySuiAddress(address)) notFound();
-  return <AnalyzeRun network={network as Network} address={address} />;
+  return (
+    <div className="pt-16 sm:pt-20">
+      <AnalyzeRun network={network as Network} address={address} />
+    </div>
+  );
 }

@@ -9,6 +9,7 @@ import { WatchDemo } from "@/components/landing/watch-demo";
 import { TroofMark } from "@/components/troof-mark";
 import { WALRUS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { GsapScroll } from "@/components/landing/gsap-scroll";
 
 // A real sealed proof (testnet); the showcase + proof links route to it,
 // where the hash is re-checked in-browser against its on-chain anchor.
@@ -63,7 +64,7 @@ const FAQ_ACCENT = new Set([0, 3, 4]); // checkerboard accent cards
 
 export default function Home() {
   return (
-    <div>
+    <GsapScroll>
       {/* ───────────────────── Hero ───────────────────── */}
       <section className="troof-blobs troof-blobs--drift relative isolate overflow-hidden">
         {/* soft ellipse glow behind the product visual */}
@@ -72,13 +73,15 @@ export default function Home() {
           src="/ellipse.png"
           alt=""
           aria-hidden
-          className="pointer-events-none absolute -right-0 -top-0 -z-10 hidden w-[500px] opacity-50 lg:block dark:opacity-30"
+          className="pointer-events-none absolute -z-10 hidden w-[400px] opacity-50 lg:block dark:opacity-30"
+          style={{ right: '0%', top: '20%' }}
         />
-        <div className={`${WRAP} relative grid items-center gap-12 pb-20 pt-20 sm:pt-24 lg:min-h-[max(88vh,60rem)] lg:grid-cols-[1.05fr_1fr] lg:gap-12 lg:pb-28`}>
+
+        <div className={`${WRAP} relative grid items-center gap-12 pb-20 pt-28 sm:pt-32 lg:min-h-screen lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pb-20 lg:pt-24 2xl:gap-20`}>
           {/* copy */}
-          <div className="relative lg:self-start">
+          <div className="relative">
             <Star className="absolute -left-3 top-0 w-5 sm:-left-7" />
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3.5 py-1.5 text-xs font-medium tracking-wide text-muted-foreground backdrop-blur-sm 2xl:text-sm">
+            <span data-hero="badge" className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3.5 py-1.5 text-xs font-medium tracking-wide text-muted-foreground backdrop-blur-sm 2xl:text-sm">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-60" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand" />
@@ -86,19 +89,19 @@ export default function Home() {
               <span className="font-mono">Verifiable AI explorer for Sui</span>
             </span>
 
-            <h1 className="mt-6 text-balance font-display text-6xl font-semibold leading-[0.95] tracking-tight text-foreground sm:text-7xl 2xl:text-8xl">
+            <h1 data-hero="title" className="mt-6 text-balance font-display text-6xl font-semibold leading-[0.95] tracking-tight text-foreground sm:text-7xl 2xl:text-8xl">
               Ask Sui.
               <br />
               Prove it.
               <Star className="ml-3 inline-block w-7 align-top 2xl:w-9" />
             </h1>
 
-            <p className="mt-6 max-w-md text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg 2xl:max-w-lg 2xl:text-xl">
+            <p data-hero="lead" className="mt-6 max-w-md text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg 2xl:max-w-lg 2xl:text-xl">
               Ask anything on Sui in plain words: a wallet, a token, a
               transaction, an address. Read it live, then prove the answer.
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4 2xl:mt-10">
+            <div data-hero="cta" className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4 2xl:mt-10">
               <Button
                 asChild
                 size="lg"
@@ -114,7 +117,7 @@ export default function Home() {
               <WatchDemo />
             </div>
 
-            <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-1.5 font-mono text-xs text-muted-foreground 2xl:text-sm">
+            <div data-hero="trust" className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-1.5 font-mono text-xs text-muted-foreground 2xl:text-sm">
               <span>Sealed to Walrus</span>
               <span className="text-border">/</span>
               <span>Anchored on Sui</span>
@@ -124,37 +127,57 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* z-curve annotation ribbon — flows just below the copy so it keeps a
-                fixed gap from the trust strip at any screen height, sitting in the
-                lower-left like the reference. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/z-curve.svg"
-              alt=""
-              aria-hidden
-              className="pointer-events-none mt-12 ml-2 hidden w-[20rem] rotate-[-3deg] lg:block 2xl:mt-16 2xl:w-[28rem]"
-            />
           </div>
 
           {/* product visual */}
           <div className="relative">
-            <BrowserMock url="troof.site/analyze" glow>
-              <HeroAnswer />
-            </BrowserMock>
+            {/* Exact container bounding the mockup so the background ellipses align perfectly */}
+            <div data-hero="visual" className="relative w-full max-w-[480px] xl:max-w-[540px] mx-auto lg:ml-auto lg:mr-0">
+              {/* Concentric ellipses behind the browser mock to match reference style */}
+              <div className="absolute inset-0 -z-10 flex items-center justify-center pointer-events-none select-none">
+                <svg
+                  viewBox="0 0 100 100"
+                  className="w-[140%] h-[140%] max-w-none opacity-40 dark:opacity-20 stroke-border fill-none"
+                  style={{ transform: "rotate(-12deg) scaleY(0.7)" }}
+                >
+                  <ellipse cx="50" cy="50" rx="46" ry="46" strokeWidth="0.15" />
+                  <ellipse cx="50" cy="50" rx="38" ry="38" strokeWidth="0.15" />
+                  <ellipse cx="50" cy="50" rx="30" ry="30" strokeWidth="0.15" />
+                  <ellipse cx="50" cy="50" rx="22" ry="22" strokeWidth="0.15" strokeDasharray="1 1" />
+                  <ellipse cx="50" cy="50" rx="14" ry="14" strokeWidth="0.15" />
+                </svg>
+              </div>
+              <BrowserMock url="troof.site/analyze" glow>
+                <HeroAnswer />
+              </BrowserMock>
+            </div>
           </div>
+
+          {/* z-curve annotation ribbon — absolutely positioned so it doesn't
+              affect the grid centering. Floats in the bottom-left of the hero. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/z-curve.svg"
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute hidden w-[22rem] rotate-[-8deg] lg:block xl:w-[26rem] 2xl:w-[32rem]"
+            style={{ bottom: '-20px', left: '25%' }}
+          />
         </div>
       </section>
 
       {/* ───────────────────── What you can do ───────────────────── */}
       <section className={FULL}>
         <div className={`${WRAP} py-20 sm:py-28`}>
-          <Eyebrow>What you can do</Eyebrow>
-          <div className="flex items-center gap-3">
-            <h2 className={H2}>One explorer, three moves.</h2>
-            <Star className="w-5 2xl:w-6" />
+          <div data-reveal>
+            <Eyebrow>What you can do</Eyebrow>
+            <div className="flex items-center gap-3">
+              <h2 className={H2}>One explorer, three moves.</h2>
+              <Star className="w-5 2xl:w-6" />
+            </div>
           </div>
 
-          <div className="mt-12 grid gap-5 md:grid-cols-3 2xl:mt-16 2xl:gap-7">
+          <div data-reveal-group className="mt-12 grid gap-5 md:grid-cols-3 2xl:mt-16 2xl:gap-7">
             <Cando icon={Search} title="Ask anything">
               Type a question about any wallet, token, transaction, or object and
               read it live on Sui.
@@ -198,19 +221,22 @@ export default function Home() {
       {/* ───────────────────── How it works ───────────────────── */}
       <section className={cn("border-t border-border/70 bg-secondary/40", FULL)}>
         <div className={`${WRAP} py-20 sm:py-28`}>
-          <Eyebrow>How it works</Eyebrow>
-          <h2 className={cn(H2, "max-w-2xl")}>Ask, read, seal, verify.</h2>
-          <p className={cn("mt-3 max-w-xl", LEAD)}>
-            An answer on a screen is just pixels. Troof turns it into something
-            anyone can independently re-check.
-          </p>
+          <div data-reveal>
+            <Eyebrow>How it works</Eyebrow>
+            <h2 className={cn(H2, "max-w-2xl")}>Ask, read, seal, verify.</h2>
+            <p className={cn("mt-3 max-w-xl", LEAD)}>
+              An answer on a screen is just pixels. Troof turns it into something
+              anyone can independently re-check.
+            </p>
+          </div>
 
           <div className="relative mt-12 2xl:mt-16">
             <div
+              data-connector
               aria-hidden
               className="absolute inset-x-[12%] top-[2.35rem] hidden border-t border-dashed border-brand-ring md:block 2xl:top-[2.85rem]"
             />
-            <div className="relative grid gap-5 md:grid-cols-4 2xl:gap-7">
+            <div data-reveal-group className="relative grid gap-5 md:grid-cols-4 2xl:gap-7">
               <Step n="01" title="Ask" body="Type any question about Sui in plain language." />
               <Step n="02" title="Read" body="Troof reads the chain live through Tatum, then answers." />
               <Step n="03" title="Seal" body="Lock the answer to Walrus and anchor it on Sui." />
@@ -218,7 +244,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3 text-sm text-muted-foreground 2xl:mt-10">
+          <div data-reveal className="mt-8 flex flex-wrap items-center gap-3 text-sm text-muted-foreground 2xl:mt-10">
             <VerdictBadge status="verified" size="sm" showSub={false} />
             <span>if untouched</span>
             <span className="text-border">·</span>
@@ -230,12 +256,14 @@ export default function Home() {
       {/* ───────────────────── Proof + Score showcase ───────────────────── */}
       <section className={FULL}>
         <div className={`${WRAP} py-20 sm:py-28`}>
-          <Eyebrow>See it for yourself</Eyebrow>
-          <h2 className={cn(H2, "max-w-2xl")}>This is a real proof. Open it yourself.</h2>
-          <p className={cn("mt-3 max-w-xl", LEAD)}>
-            Change one byte and the verdict flips. That is the whole idea.
-          </p>
-          <div className="mt-10 2xl:mt-14">
+          <div data-reveal>
+            <Eyebrow>See it for yourself</Eyebrow>
+            <h2 className={cn(H2, "max-w-2xl")}>This is a real proof. Open it yourself.</h2>
+            <p className={cn("mt-3 max-w-xl", LEAD)}>
+              Change one byte and the verdict flips. That is the whole idea.
+            </p>
+          </div>
+          <div data-reveal className="mt-10 2xl:mt-14">
             <ProofShowcase blobId={SAMPLE_BLOB} proofUrl={PROOF_URL} aggregatorHost={AGG_HOST} />
           </div>
         </div>
@@ -249,13 +277,15 @@ export default function Home() {
         <div className={`${WRAP} grid items-center gap-12 py-20 sm:py-28 lg:grid-cols-2`}>
           <div className="relative">
             <Star className="absolute -left-2 -top-3 w-5 2xl:w-6" />
-            <Eyebrow>Why you can trust it</Eyebrow>
-            <h2 className={cn(H2, "text-balance leading-tight")}>
-              Most explorers hand you raw data and ask you to trust the screen.
-            </h2>
-            <div className="mt-6 max-w-md rounded-2xl rounded-bl-sm border border-brand-ring bg-brand-soft px-4 py-3 text-sm leading-relaxed text-foreground/90 2xl:max-w-lg 2xl:px-5 2xl:py-4 2xl:text-base">
-              We are not in the verify path. Anyone re-fetches the evidence and
-              re-hashes it themselves.
+            <div data-reveal-group>
+              <Eyebrow>Why you can trust it</Eyebrow>
+              <h2 className={cn(H2, "text-balance leading-tight")}>
+                Most explorers hand you raw data and ask you to trust the screen.
+              </h2>
+              <div className="mt-6 max-w-md rounded-2xl rounded-bl-sm border border-brand-ring bg-brand-soft px-4 py-3 text-sm leading-relaxed text-foreground/90 2xl:max-w-lg 2xl:px-5 2xl:py-4 2xl:text-base">
+                We are not in the verify path. Anyone re-fetches the evidence and
+                re-hashes it themselves.
+              </div>
             </div>
           </div>
 
@@ -282,13 +312,15 @@ export default function Home() {
       {/* ───────────────────── FAQ ───────────────────── */}
       <section className={cn("border-t border-border/70 bg-secondary/40", FULL)}>
         <div className={`${WRAP} py-20 sm:py-28`}>
-          <Eyebrow>FAQ</Eyebrow>
-          <div className="flex items-center gap-3">
-            <h2 className={H2}>Questions, answered.</h2>
-            <Star className="w-5 2xl:w-6" />
+          <div data-reveal>
+            <Eyebrow>FAQ</Eyebrow>
+            <div className="flex items-center gap-3">
+              <h2 className={H2}>Questions, answered.</h2>
+              <Star className="w-5 2xl:w-6" />
+            </div>
           </div>
 
-          <div className="mt-10 grid gap-4 md:grid-cols-2 2xl:mt-14 2xl:gap-6">
+          <div data-reveal-group className="mt-10 grid gap-4 md:grid-cols-2 2xl:mt-14 2xl:gap-6">
             {FAQ.map((item, i) => (
               <FaqCard key={item.q} q={item.q} a={item.a} accent={FAQ_ACCENT.has(i)} />
             ))}
@@ -300,6 +332,7 @@ export default function Home() {
       <section className={FULL}>
         <div className={`${WRAP} py-16 sm:py-24`}>
           <div
+            data-reveal
             className="dark troof-aurora relative isolate overflow-hidden rounded-[2rem] bg-background px-6 py-20 text-center text-foreground sm:px-12 sm:py-28 2xl:py-40"
             style={{
               "--aurora-strength": "0.7",
@@ -333,7 +366,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </div>
+    </GsapScroll>
   );
 }
 
@@ -375,13 +408,13 @@ function ArrowLong({ className }: { className?: string }) {
 function HeroAnswer() {
   return (
     <div className="space-y-3 text-sm">
-      <div className="flex items-center gap-2">
+      <div data-hero="q" className="flex items-center gap-2">
         <span className="artifact rounded bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
           you
         </span>
         <span className="text-foreground/90">Is this token the real SUI?</span>
       </div>
-      <div className="rounded-xl border border-border bg-card p-3.5">
+      <div data-hero="a-card" className="rounded-xl border border-border bg-card p-3.5">
         <div className="flex items-center gap-1.5">
           <TroofMark className="h-3.5 w-3.5 text-brand" />
           <span className="artifact text-[11px] text-muted-foreground">troof</span>
@@ -389,7 +422,7 @@ function HeroAnswer() {
         <p className="mt-2 leading-relaxed text-foreground/90">
           No. It impersonates the SUI symbol. The canonical coin is
         </p>
-        <div className="artifact mt-2 rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground/80">
+        <div data-hero="a-chip" className="artifact mt-2 rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-foreground/80">
           0x2::sui::SUI
         </div>
         <p className="mt-2.5 font-mono text-[11px] text-muted-foreground">

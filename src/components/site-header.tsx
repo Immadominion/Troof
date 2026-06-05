@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { TroofWordmark } from "@/components/troof-mark";
@@ -15,24 +14,9 @@ const NAV = [
 
 export function SiteHeader() {
   const pathname = usePathname();
-  // Blend into the hero at the very top; become a solid bar once scrolled.
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-40 border-b transition-colors duration-300",
-        scrolled
-          ? "border-border/80 bg-background/70 backdrop-blur-xl"
-          : "border-transparent bg-transparent",
-      )}
-    >
+    <header className="absolute inset-x-0 top-0 z-50 border-none bg-transparent">
       <div className="relative mx-auto flex h-16 w-full max-w-[1400px] items-center px-6 lg:px-10 2xl:h-20 2xl:max-w-[1560px]">
         {/* left: brand */}
         <Link href="/" className="shrink-0 text-foreground transition-opacity hover:opacity-80">

@@ -36,7 +36,7 @@ export default function VerifyPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-5 py-20">
+    <div className="mx-auto max-w-2xl px-5 pt-28 pb-20">
       <div className="text-center">
         <ShieldCheck className="mx-auto h-7 w-7 text-muted-foreground" />
         <h1 className="mt-5 text-3xl font-semibold tracking-tight sm:text-4xl">

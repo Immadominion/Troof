@@ -306,6 +306,20 @@
     -webkit-mask-image: radial-gradient(125% 100% at 50% 28%, #000 52%, transparent 100%);
             mask-image: radial-gradient(125% 100% at 50% 28%, #000 52%, transparent 100%);
   }
+  .troof-blobs::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.22;
+    background-image:
+      linear-gradient(to right, var(--border) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+    background-size: 44px 44px;
+    -webkit-mask-image: radial-gradient(100% 100% at 50% 50%, #000 30%, transparent 85%);
+            mask-image: radial-gradient(100% 100% at 50% 50%, #000 30%, transparent 85%);
+  }
   @media (prefers-reduced-motion: no-preference) {
     .troof-blobs--drift::before { animation: blob-drift 20s ease-in-out infinite alternate; }
   }
@@ -316,6 +330,40 @@
   /* OrbitCluster ring rotation (motion-safe, opt-in via the component) */
   @keyframes orbit-spin { to { transform: rotate(360deg); } }
   @keyframes orbit-spin-rev { to { transform: rotate(-360deg); } }
+}
+
+/* ── GSAP reveal gate ───────────────────────────────────────────────────────
+   Reveal targets start hidden ONLY when motion is "armed" — the tiny script in
+   layout.tsx adds `html.gsap-armed` before first paint, and only when JS is live
+   AND prefers-reduced-motion is not set. With JS off or reduced motion the class
+   is absent → everything renders fully visible (no FOUC, graceful degradation).
+   The client wrapper (GsapScroll) animates these to their visible state and
+   leaves that end state inline, so nothing is re-hidden after revealing.
+   Unlayered on purpose: it must reliably win over component/utility opacity. */
+html.gsap-armed [data-hero],
+html.gsap-armed [data-reveal],
+html.gsap-armed [data-reveal-group] > *,
+html.gsap-armed [data-orbit-center],
+html.gsap-armed [data-orbit-chip] {
+  opacity: 0;
+}
+html.gsap-armed [data-connector] {
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+/* Safety net: if reduced-motion is toggled ON after load (class already set),
+   never leave content stranded hidden. */
+@media (prefers-reduced-motion: reduce) {
+  html.gsap-armed [data-hero],
+  html.gsap-armed [data-reveal],
+  html.gsap-armed [data-reveal-group] > *,
+  html.gsap-armed [data-orbit-center],
+  html.gsap-armed [data-orbit-chip] {
+    opacity: 1 !important;
+  }
+  html.gsap-armed [data-connector] {
+    transform: none !important;
+  }
 }
 
 /* Selection — brand blue tint. */

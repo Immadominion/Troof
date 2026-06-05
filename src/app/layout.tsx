@@ -55,6 +55,17 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col">
+        {/* Arm the landing-page reveal animations BEFORE first paint. Runs during
+            HTML parse (so the CSS pre-hide under `html.gsap-armed` applies on the
+            very first frame → zero FOUC). Only arms when JS is live AND motion is
+            allowed; with JS off or prefers-reduced-motion the class is never added
+            and all content renders fully visible. Kept tiny + dependency-free. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{if(window.matchMedia&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.classList.add('gsap-armed');}}catch(e){}})();",
+          }}
+        />
         <Providers>
           <SiteHeader />
           <main className="flex-1">{children}</main>

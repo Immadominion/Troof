@@ -23,7 +23,10 @@ export function OrbitCluster({
   className?: string;
 }) {
   return (
-    <div className={cn("relative mx-auto aspect-square w-full max-w-md", className)}>
+    <div
+      data-orbit-root
+      className={cn("relative mx-auto aspect-square w-full max-w-md", className)}
+    >
       {/* rings (slow rotation, motion-safe) */}
       <svg
         viewBox="0 0 100 100"
@@ -45,7 +48,10 @@ export function OrbitCluster({
       </svg>
 
       {/* center mark */}
-      <div className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
+      <div
+        data-orbit-center
+        className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2"
+      >
         {center}
       </div>
 
@@ -58,6 +64,7 @@ export function OrbitCluster({
         return (
           <div
             key={c.label}
+            data-orbit-chip
             className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
             style={{ left: `${left}%`, top: `${top}%` }}
           >

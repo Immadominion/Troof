@@ -10,5 +10,9 @@ export default async function ProofPage({
 }) {
   const { blobId } = await params;
   if (!/^[A-Za-z0-9_-]{10,}$/.test(blobId)) notFound();
-  return <ProofVerifier blobId={blobId} />;
+  return (
+    <div className="pt-16 sm:pt-20">
+      <ProofVerifier blobId={blobId} />
+    </div>
+  );
 }

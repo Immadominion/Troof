@@ -17,7 +17,7 @@ export default function DocsPage() {
         className="troof-blobs relative isolate overflow-hidden border-b border-border/60"
         style={{ "--blob-strength": "0.4" } as React.CSSProperties}
       >
-        <header className="mx-auto max-w-3xl px-5 pb-10 pt-16">
+        <header className="mx-auto max-w-3xl px-5 pb-10 pt-24 sm:pt-28">
         <h1 className="text-3xl font-semibold tracking-tight">Docs</h1>
         <p className="mt-2 text-muted-foreground">
           {SITE.name}, the verifiable AI terminal for Sui. An explorer whose answers you can re-check.
