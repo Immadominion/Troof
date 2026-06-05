@@ -4,9 +4,9 @@
 
 # Troof
 
-### The verifiable AI terminal for Sui.
+### The AI explorer for Sui — that can prove its answers.
 
-Ask an AI about any Sui wallet or token, then **seal its answer into a proof a stranger can re-fetch and re-hash** to `Verified` or `Tampered`.
+Ask an AI about any Sui **wallet, token, or transaction** in plain English. It reads the chain live through Tatum and explains it — and any answer can be **sealed into a proof a stranger can re-fetch and re-hash** to `Verified` or `Tampered`.
 
 *Powered by [Tatum](https://tatum.io) · [Walrus](https://walrus.xyz) · [Sui](https://sui.io). Built for the Tatum × Walrus on Sui hackathon.*
 
@@ -14,7 +14,7 @@ Ask an AI about any Sui wallet or token, then **seal its answer into a proof a s
 
 ---
 
-> Every AI explorer tells you what happened. Troof is the only one that lets a stranger **prove the AI didn't lie**, because the answer, the on-chain data behind it, and the verdict are stored on Walrus and anchored on Sui, with no Troof server in the verification path.
+> Most explorers hand you raw data; an AI explorer explains it. Troof goes one step further: any answer can be **sealed so anyone can independently re-check it wasn't altered** — the answer, the on-chain data behind it, and the verdict are stored on Walrus and anchored on Sui, with no Troof server in the verification path.
 
 <img src="public/docs/system-architecture.svg" alt="System overview" width="100%" />
 
@@ -28,7 +28,7 @@ Ask an AI about any Sui wallet or token, then **seal its answer into a proof a s
 
 ## What it does
 
-1. **Ask.** Paste a Sui wallet or token into the terminal. An AI agent reads it live through **Tatum** (Sui RPC + the Tatum MCP server).
+1. **Ask.** Paste a Sui wallet, token, or **transaction** into the terminal. An AI agent reads it live through **Tatum** (Sui RPC + the Tatum MCP server) and explains it in plain English — a wallet's holdings, a token's trustworthiness, or what a transaction actually did.
 2. **Grade.** Wallets get an integrity-checked report (USD is shown only for canonical `0x2::sui::SUI`, so tokens faking the SUI symbol can't inflate it). Tokens get a **Troof Score** (A to F), and every penalty points at the raw on-chain field it came from.
 3. **Seal.** One click writes the full evidence bundle to **Walrus** and anchors its **SHA-256 on Sui**.
 4. **Verify.** Open the proof link anywhere. It re-fetches from a **public Walrus aggregator**, re-hashes **in your browser**, and compares to the on-chain record: `Verified` (green), or `Tampered` (red) if a single byte changed.

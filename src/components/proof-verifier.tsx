@@ -9,11 +9,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { VerdictBadge, type Verdict } from "@/components/verdict-badge";
 import { ReportView } from "@/components/report-view";
 import { TokenScoreCard } from "@/components/token-score-card";
+import { TransactionCard } from "@/components/transaction-card";
 import { hashCanonical } from "@/lib/canonical";
 import { walrusBlobUrl, DEFAULT_NETWORK, NETWORKS } from "@/lib/constants";
 import { shortAddress, shortHash } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import type { SealedProof, WalletReport, TokenReport } from "@/lib/types";
+import type { SealedProof, WalletReport, TokenReport, TransactionReport } from "@/lib/types";
 
 interface Loaded {
   sealed: SealedProof;
@@ -55,8 +56,16 @@ async function loadProof(blobId: string): Promise<Loaded> {
 }
 
 function tamperReport(report: SealedProof["report"]): SealedProof["report"] {
-  if ("totals" in report) return { ...report, totals: { ...report.totals, usd: report.totals.usd + 1 } };
-  return { ...report, score: { ...report.score, score: report.score.score + 1 } };
+  switch (report.schema) {
+    case "troof.report/v1":
+      return { ...report, totals: { ...report.totals, usd: report.totals.usd + 1 } };
+    case "troof.token/v1":
+      return { ...report, score: { ...report.score, score: report.score.score + 1 } };
+    case "troof.tx/v1":
+      return { ...report, gas: { ...report.gas, netSui: report.gas.netSui + 1 } };
+    default:
+      return report;
+  }
 }
 
 export function ProofVerifier({ blobId }: { blobId: string }) {
@@ -166,10 +175,14 @@ export function ProofVerifier({ blobId }: { blobId: string }) {
         </div>
       </div>
 
-      {/* The report itself, wallet report or token Troof Score */}
+      {/* The report itself, wallet report / token Troof Score / transaction summary */}
       {sealed.kind === "token" ? (
         <div className="mx-auto max-w-3xl px-5 py-10">
           <TokenScoreCard report={sealed.report as TokenReport} />
+        </div>
+      ) : sealed.kind === "transaction" ? (
+        <div className="mx-auto max-w-3xl px-5 py-10">
+          <TransactionCard report={sealed.report as TransactionReport} />
         </div>
       ) : (
         <ReportView

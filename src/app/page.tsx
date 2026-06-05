@@ -347,7 +347,7 @@ export default function Home() {
             <Star className="absolute bottom-14 left-[24%] w-3.5 opacity-60 2xl:w-5" />
 
             <h2 className="font-display text-4xl font-semibold tracking-tight sm:text-6xl 2xl:text-7xl">
-              Ask Sui anything.
+              Ask Sui, in plain English.
             </h2>
             <p className="mx-auto mt-4 max-w-md text-muted-foreground 2xl:mt-6 2xl:max-w-lg 2xl:text-lg">
               Get a live answer you can prove and share. It is free to try.

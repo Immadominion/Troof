@@ -96,6 +96,43 @@ export const getObject = (
 export const getTransactionBlock = (n: Network, digest: string) =>
   rpc<{ timestampMs?: string }>(n, "sui_getTransactionBlock", [digest, { showInput: true }]);
 
+// Full transaction detail — what the "explain a transaction" report is built from.
+export interface RawTxBlock {
+  digest?: string;
+  timestampMs?: string;
+  checkpoint?: string;
+  transaction?: {
+    data?: {
+      sender?: string;
+      gasData?: { price?: string; budget?: string; owner?: string };
+      transaction?: { kind?: string; transactions?: unknown[]; inputs?: unknown[] };
+    };
+  };
+  effects?: {
+    status?: { status?: string; error?: string };
+    gasUsed?: {
+      computationCost?: string;
+      storageCost?: string;
+      storageRebate?: string;
+      nonRefundableStorageFee?: string;
+    };
+  };
+  events?: Array<{ type?: string; sender?: string; parsedJson?: unknown }>;
+  balanceChanges?: Array<{ owner?: unknown; coinType?: string; amount?: string }>;
+  objectChanges?: Array<{ type?: string; objectType?: string; objectId?: string }>;
+}
+export const getTransactionFull = (n: Network, digest: string) =>
+  rpc<RawTxBlock>(n, "sui_getTransactionBlock", [
+    digest,
+    {
+      showInput: true,
+      showEffects: true,
+      showEvents: true,
+      showBalanceChanges: true,
+      showObjectChanges: true,
+    },
+  ]);
+
 export const resolveNameServiceNames = (n: Network, owner: string) =>
   rpc<{ data: string[] }>(n, "suix_resolveNameServiceNames", [owner]);
 

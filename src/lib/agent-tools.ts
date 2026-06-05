@@ -5,7 +5,8 @@ import { tool } from "ai";
 import { z } from "zod";
 import { buildReport } from "./report";
 import { buildTokenReport } from "./token";
-import { sealProof, sealToken } from "./seal";
+import { buildTxReport } from "./tx";
+import { sealProof, sealToken, sealTransaction } from "./seal";
 import type { Network } from "./constants";
 
 const networkSchema = z.enum(["mainnet", "testnet"]);
@@ -61,6 +62,10 @@ export const sealProofTool = tool({
       contentHash: r.contentHash,
       recordId: r.anchor.recordId,
       txDigest: r.anchor.txDigest,
+      kind: "wallet",
+      subject: address,
+      network,
+      headline,
     };
   },
 });
@@ -95,7 +100,59 @@ export const sealTokenTool = tool({
       summary,
       generatedAt: new Date().toISOString(),
     });
-    return { proofUrl: r.proofUrl, blobId: r.blobId, contentHash: r.contentHash, recordId: r.anchor.recordId };
+    return {
+      proofUrl: r.proofUrl,
+      blobId: r.blobId,
+      contentHash: r.contentHash,
+      recordId: r.anchor.recordId,
+      kind: "token",
+      subject: coinType,
+      network,
+      headline,
+    };
+  },
+});
+
+export const analyzeTransactionTool = tool({
+  description:
+    "Explain a Sui transaction in plain English. Fetches its full detail via Tatum RPC (status, sender, gas spent, token/SUI movements, the contracts/functions it called, objects changed, and events) and returns a structured summary. Call this when the user gives a transaction digest (a base58 string, NOT a 0x address) or asks what a transaction / tx did.",
+  inputSchema: z.object({
+    network: networkSchema,
+    digest: z.string().describe("Sui transaction digest (base58, e.g. 'DZfCuQKR…')"),
+  }),
+  execute: async ({ network, digest }) => {
+    const { report } = await buildTxReport(network as Network, digest);
+    // Drop the noisy evidence trail from the chat payload (kept in the sealed bundle).
+    return { ...report, evidence: undefined };
+  },
+});
+
+export const sealTransactionTool = tool({
+  description:
+    "Seal a verifiable proof of a transaction explanation: anchors its hash on Sui and stores the bundle on Walrus. Call after analyze_transaction, with a one-line headline + short summary. Returns a proof URL.",
+  inputSchema: z.object({
+    network: networkSchema,
+    digest: z.string(),
+    headline: z.string().describe("one-line summary, e.g. 'DeepBook order placed; 0.0016 SUI gas'"),
+    summary: z.string().describe("2–4 sentence plain-English explanation of what the transaction did"),
+  }),
+  execute: async ({ network, digest, headline, summary }) => {
+    const r = await sealTransaction(network as Network, digest, {
+      model: "Troof agent (Claude)",
+      headline,
+      summary,
+      generatedAt: new Date().toISOString(),
+    });
+    return {
+      proofUrl: r.proofUrl,
+      blobId: r.blobId,
+      contentHash: r.contentHash,
+      recordId: r.anchor.recordId,
+      kind: "transaction",
+      subject: digest,
+      network,
+      headline,
+    };
   },
 });
 
@@ -104,4 +161,6 @@ export const localAgentTools = {
   seal_wallet_proof: sealProofTool,
   analyze_token: analyzeTokenTool,
   seal_token_proof: sealTokenTool,
+  analyze_transaction: analyzeTransactionTool,
+  seal_transaction_proof: sealTransactionTool,
 };

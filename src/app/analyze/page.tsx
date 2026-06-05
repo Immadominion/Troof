@@ -11,20 +11,23 @@ import { useCurrentAccount, useSignAndExecuteTransaction, ConnectModal } from "@
 import { Transaction } from "@mysten/sui/transactions";
 import {
   ArrowUp, Wrench, ShieldCheck, Loader2, Wallet, Coins, ShieldAlert,
-  HelpCircle, Zap, Sparkles, ThumbsUp, ThumbsDown,
+  HelpCircle, Zap, Sparkles, ThumbsUp, ThumbsDown, Receipt,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { TokenScoreCard } from "@/components/token-score-card";
+import { TransactionCard } from "@/components/transaction-card";
 import { FeedbackDialog, sendFeedback } from "@/components/feedback-dialog";
 import { useTypingPlaceholder } from "@/lib/use-typing-placeholder";
 import { startTour } from "@/lib/tour";
+import { useProofHistory, addProof } from "@/lib/proof-history";
 import { cn } from "@/lib/utils";
-import type { TokenReport } from "@/lib/types";
+import type { TokenReport, TransactionReport } from "@/lib/types";
 
 const FAKE_SUI = "0xb0436f8d8f4700b4aec5f94b45cfaa9029b0e37ab5d09544de420850878e4ad5::sui::SUI";
 const DEMO_WALLET = "0xffd4f043057226453aeba59732d41c6093516f54823ebc3a16d17f8a77d2f0ad";
+const DEMO_TX = "DZfCuQKR6pxYnPJuyjYQfrqDwFttX8knA45rw6RMLpBP";
 const FREE_ANALYSES = Number(process.env.NEXT_PUBLIC_FREE_ANALYSES ?? 5);
 const TREASURY = process.env.NEXT_PUBLIC_TROOF_TREASURY;
 const PRICE_SUI = Number(process.env.NEXT_PUBLIC_PRICE_SUI ?? "0.1");
@@ -33,22 +36,27 @@ const CREDITS_PER_PURCHASE = 20;
 
 const PLACEHOLDERS = [
   "Paste a Sui wallet address…",
+  "Paste a transaction digest to explain it…",
   "Paste a token to grade it…",
   "Paste a proof link to verify…",
   "Ask: is this token a fake SUI?",
 ];
 
 const TILES = [
+  { icon: Receipt, label: "Explain a transaction", prompt: `Explain transaction ${DEMO_TX} on mainnet.` },
+  { icon: Wallet, label: "Explain a wallet", prompt: `Analyze ${DEMO_WALLET} on mainnet.` },
   { icon: ShieldAlert, label: "Spot a fake SUI", prompt: `Analyze the token ${FAKE_SUI} on mainnet and seal its Troof Score.` },
-  { icon: Coins, label: "Score the real SUI", prompt: "Analyze the token 0x2::sui::SUI on mainnet and seal its Troof Score." },
-  { icon: Wallet, label: "Explain a wallet", prompt: `Analyze ${DEMO_WALLET} on mainnet and seal a proof.` },
+  { icon: Coins, label: "Score the real SUI", prompt: "Analyze the token 0x2::sui::SUI on mainnet." },
 ];
 
 type AnyPart = { type: string; toolName?: string; state?: string; output?: unknown; text?: string };
 const toolName = (p: AnyPart) => (p.type === "dynamic-tool" ? p.toolName ?? "tool" : p.type.replace("tool-", ""));
 function proofUrlFrom(p: AnyPart): string | null {
   const n = toolName(p);
-  if ((n === "seal_wallet_proof" || n === "seal_token_proof") && p.state === "output-available") {
+  if (
+    (n === "seal_wallet_proof" || n === "seal_token_proof" || n === "seal_transaction_proof") &&
+    p.state === "output-available"
+  ) {
     return (p.output as { proofUrl?: string })?.proofUrl ?? null;
   }
   return null;
@@ -58,7 +66,9 @@ function detectProof(text: string): string | null {
   const s = text.trim();
   const m = s.match(/\/p\/([A-Za-z0-9_-]{20,})/);
   if (m) return m[1];
-  if (!s.startsWith("0x") && /^[A-Za-z0-9_-]{30,}$/.test(s)) return s;
+  // A bare Walrus blob id routes to verify, but require a base64url marker (- or _) so a
+  // base58 transaction digest falls through to the agent (which explains it) instead.
+  if (!s.startsWith("0x") && /[-_]/.test(s) && /^[A-Za-z0-9_-]{30,}$/.test(s)) return s;
   return null;
 }
 
@@ -74,6 +84,7 @@ export default function AnalyzePage() {
 
   const account = useCurrentAccount();
   const { mutateAsync: signAndExecute } = useSignAndExecuteTransaction();
+  const recentProofs = useProofHistory(account?.address);
 
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [gateOpen, setGateOpen] = useState(false);
@@ -93,6 +104,38 @@ export default function AnalyzePage() {
   useEffect(() => {
     if (account) setGateOpen(false);
   }, [account]);
+  // Save every sealed proof to the local "Your proofs" history (idempotent by blobId).
+  useEffect(() => {
+    for (const m of messages) {
+      if (m.role !== "assistant") continue;
+      for (const p of m.parts as AnyPart[]) {
+        const n = toolName(p);
+        if (
+          (n === "seal_wallet_proof" || n === "seal_token_proof" || n === "seal_transaction_proof") &&
+          p.state === "output-available" && p.output
+        ) {
+          const o = p.output as {
+            blobId?: string; proofUrl?: string; kind?: string;
+            subject?: string; headline?: string; network?: string;
+          };
+          if (o.blobId && o.proofUrl) {
+            addProof(
+              {
+                blobId: o.blobId,
+                proofUrl: o.proofUrl,
+                kind: o.kind === "token" || o.kind === "transaction" ? o.kind : "wallet",
+                subject: o.subject ?? "",
+                headline: o.headline,
+                network: o.network,
+                ts: Date.now(),
+              },
+              account?.address,
+            );
+          }
+        }
+      }
+    }
+  }, [messages, account?.address]);
 
   function gateState(): "ok" | "connect" | "pay" {
     if (account) {
@@ -171,10 +214,10 @@ export default function AnalyzePage() {
 
       {messages.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center py-16 text-center">
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">The verifiable terminal for Sui</h1>
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">The AI explorer for Sui</h1>
           <p className="mx-auto mt-3 max-w-lg text-muted-foreground">
-            Paste any wallet, token, or proof link. The agent reads it live through Tatum, grades it,
-            and seals a proof anyone can re-check.
+            Paste any wallet, token, or transaction. The agent reads it live through Tatum and explains
+            it in plain English, and you can seal any answer into a proof anyone can re-check.
           </p>
           <div id="tour-tiles" className="mt-8 grid w-full gap-2 sm:grid-cols-2">
             {TILES.map((t) => (
@@ -193,6 +236,27 @@ export default function AnalyzePage() {
           <button onClick={startTour} className="mt-6 inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground">
             <HelpCircle className="h-3.5 w-3.5" /> How it works
           </button>
+
+          {recentProofs.length > 0 && (
+            <div className="mt-10 w-full max-w-md text-left">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-xs font-medium text-muted-foreground">Your recent proofs</span>
+                <Link href="/proofs" className="text-xs text-muted-foreground transition-colors hover:text-foreground">
+                  View all →
+                </Link>
+              </div>
+              <ul className="space-y-1.5">
+                {recentProofs.slice(0, 3).map((p) => (
+                  <li key={p.blobId}>
+                    <Link href={p.proofUrl} className="flex items-center gap-2 rounded-lg border border-border bg-card/40 px-3 py-2 text-left text-xs transition-colors hover:bg-card/70">
+                      <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      <span className="truncate text-foreground/80">{p.headline || p.subject}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       ) : (
         <div className="flex-1 space-y-6 py-8">
@@ -219,6 +283,9 @@ export default function AnalyzePage() {
                   }
                   if (n === "analyze_token" && part.state === "output-available" && part.output) {
                     return <TokenScoreCard key={i} report={part.output as TokenReport} />;
+                  }
+                  if (n === "analyze_transaction" && part.state === "output-available" && part.output) {
+                    return <TransactionCard key={i} report={part.output as TransactionReport} />;
                   }
                   if (part.type.startsWith("tool-") || part.type === "dynamic-tool") {
                     return (
