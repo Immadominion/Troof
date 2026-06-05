@@ -21,7 +21,7 @@ import { TransactionCard } from "@/components/transaction-card";
 import { FeedbackDialog, sendFeedback } from "@/components/feedback-dialog";
 import { useTypingPlaceholder } from "@/lib/use-typing-placeholder";
 import { startTour } from "@/lib/tour";
-import { useProofHistory, addProof } from "@/lib/proof-history";
+import { useProofHistory, addProof, safeProofHref } from "@/lib/proof-history";
 import { cn } from "@/lib/utils";
 import type { TokenReport, TransactionReport } from "@/lib/types";
 
@@ -248,7 +248,7 @@ export default function AnalyzePage() {
               <ul className="space-y-1.5">
                 {recentProofs.slice(0, 3).map((p) => (
                   <li key={p.blobId}>
-                    <Link href={p.proofUrl} className="flex items-center gap-2 rounded-lg border border-border bg-card/40 px-3 py-2 text-left text-xs transition-colors hover:bg-card/70">
+                    <Link href={safeProofHref(p.proofUrl)} className="flex items-center gap-2 rounded-lg border border-border bg-card/40 px-3 py-2 text-left text-xs transition-colors hover:bg-card/70">
                       <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                       <span className="truncate text-foreground/80">{p.headline || p.subject}</span>
                     </Link>

@@ -52,6 +52,9 @@ export function loadProofs(address?: string | null): ProofEntry[] {
 
 /** Idempotent: a proof already saved (same blobId) is a no-op, so re-scanning is safe. */
 export function addProof(entry: ProofEntry, address?: string | null): void {
+  // Persisted proof URLs are untrusted on read-back: only accept a same-origin path
+  // (/p/<blobId>). Reject javascript:/data:/vbscript: and protocol-relative (//evil).
+  if (!isSafeHref(entry.proofUrl)) return;
   const k = keyFor(address);
   const list = read(k);
   if (list.some((e) => e.blobId === entry.blobId)) return;
@@ -60,6 +63,15 @@ export function addProof(entry: ProofEntry, address?: string | null): void {
 
 export function clearProofs(address?: string | null): void {
   write(keyFor(address), []);
+}
+
+function isSafeHref(url: string | undefined | null): url is string {
+  return !!url && url.startsWith("/") && !url.startsWith("//");
+}
+
+/** Render-time guard: a non same-origin path (e.g. a tampered localStorage entry) → "#". */
+export function safeProofHref(url: string | undefined | null): string {
+  return isSafeHref(url) ? url : "#";
 }
 
 /** SSR-safe hook: starts empty (so server + first client render match → no hydration

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { Wallet, Coins, Receipt, ArrowUpRight, Trash2, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useProofHistory, clearProofs, type ProofEntry } from "@/lib/proof-history";
+import { useProofHistory, clearProofs, safeProofHref, type ProofEntry } from "@/lib/proof-history";
 import { shortAddress } from "@/lib/format";
 
 const KIND = {
@@ -79,7 +79,7 @@ function ProofRow({ entry }: { entry: ProofEntry }) {
   return (
     <li>
       <Link
-        href={entry.proofUrl}
+        href={safeProofHref(entry.proofUrl)}
         className="group flex items-center gap-4 rounded-xl border border-border bg-card/40 px-4 py-3 transition-colors hover:bg-card/70"
       >
         <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-foreground">
