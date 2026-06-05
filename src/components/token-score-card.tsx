@@ -16,7 +16,7 @@ export function TokenScoreCard({ report }: { report: TokenReport }) {
   const passed = s.lineItems.filter((l) => l.penalty === 0);
 
   return (
-    <div className="rounded-xl border border-border bg-card/40 p-5">
+    <div className="rounded-xl border border-border bg-card p-5">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">

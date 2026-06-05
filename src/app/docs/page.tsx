@@ -14,8 +14,8 @@ export default function DocsPage() {
   return (
     <div>
       <section
-        className="troof-aurora relative isolate overflow-hidden border-b border-border/60"
-        style={{ "--aurora-strength": "0.35" } as React.CSSProperties}
+        className="troof-blobs relative isolate overflow-hidden border-b border-border/60"
+        style={{ "--blob-strength": "0.4" } as React.CSSProperties}
       >
         <header className="mx-auto max-w-3xl px-5 pb-10 pt-16">
         <h1 className="text-3xl font-semibold tracking-tight">Docs</h1>
@@ -44,7 +44,7 @@ export default function DocsPage() {
       <Section id="overview" icon={BookOpen} title="What is Troof">
         <p>
           Troof lets you ask an AI about any Sui <strong>wallet</strong> or <strong>token</strong>, and
-          then <strong>seal that answer into a proof</strong> anyone can independently re-fetch and
+          then <strong>seal that answer into a proof</strong>{" "}anyone can independently re-fetch and
           re-hash. Other explorers generate an explanation and throw it away; Troof turns it into an
           artifact: the AI&apos;s verdict, the on-chain data behind it, and the integrity hash are
           stored on Walrus and anchored on Sui, with no Troof server in the verification path.

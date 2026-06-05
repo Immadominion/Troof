@@ -15,9 +15,15 @@
   --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
   --font-heading: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 
-  /* Troof brand + SACRED verdict colors. Green/red appear ONLY for verification verdicts. */
+  /* Troof brand accent (decoration only) + SACRED verdict colors.
+     Brand = blue in light (default), neutral in dark. Green/red appear ONLY for verdicts. */
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-ring: var(--brand-ring);
+  --color-brand-glow: var(--brand-glow);
+  --color-blob-blue: var(--blob-blue);
+  --color-blob-amber: var(--blob-amber);
   --color-verified: var(--verified);
   --color-verified-foreground: var(--verified-foreground);
   --color-verified-muted: var(--verified-muted);
@@ -72,47 +78,62 @@
   --tampered-muted: oklch(0.637 0.237 25.5 / 14%);
 }
 
-/* Light theme (secondary; Troof is dark-first). Pure Mono — no chroma outside verdicts. */
+/* Light theme — the Troof DEFAULT (Oracle-style: airy white + one blue accent).
+   Chroma stays below the verdict green so green/red remain the loudest color on screen. */
 :root {
-  --radius: 0.5rem;
+  --radius: 0.75rem;                          /* rounder cards (Oracle 2xl feel) */
   --background: oklch(1 0 0);
-  --foreground: oklch(0.14 0 0);
-  --card: oklch(0.99 0 0);
-  --card-foreground: oklch(0.14 0 0);
+  --foreground: oklch(0.17 0.005 270);        /* near-black ink, a hair cool */
+  --card: oklch(0.995 0.002 260);
+  --card-foreground: oklch(0.17 0.005 270);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.14 0 0);
-  --primary: oklch(0.16 0 0);
+  --popover-foreground: oklch(0.17 0.005 270);
+  --primary: oklch(0.18 0.006 270);           /* near-black solid button */
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.96 0 0);
-  --secondary-foreground: oklch(0.16 0 0);
-  --muted: oklch(0.96 0 0);
-  --muted-foreground: oklch(0.44 0 0);
-  --accent: oklch(0.95 0 0);
-  --accent-foreground: oklch(0.16 0 0);
+  --secondary: oklch(0.975 0.002 260);
+  --secondary-foreground: oklch(0.22 0.006 270);
+  --muted: oklch(0.965 0.003 255);
+  --muted-foreground: oklch(0.44 0.012 265);  /* AA-safe medium gray for body */
+  --accent: oklch(0.96 0.004 255);
+  --accent-foreground: oklch(0.20 0.006 270);
   --destructive: oklch(0.577 0.245 27.3);
-  --border: oklch(0.91 0 0);
-  --input: oklch(0.91 0 0);
-  --ring: oklch(0.4 0 0);
-  --brand: oklch(0.32 0 0);              /* mono "accent" — dark gray on light */
+  --border: oklch(0.922 0.004 260);
+  --input: oklch(0.912 0.004 260);
+  --ring: var(--brand);
+
+  /* BRAND BLUE — the single decorative accent (logo blue). Links, badges, sparkles,
+     orbit rings, button glow, accent cards. NEVER a verdict, status, or signal. */
+  --brand: oklch(0.62 0.17 255);
   --brand-foreground: oklch(0.99 0 0);
-  /* Aurora is dark-first; render flat in light mode (fully transparent). */
+  /* derived from --brand via color-mix, so dark (neutral --brand) auto-adapts */
+  --brand-soft: color-mix(in oklch, var(--brand), transparent 88%);
+  --brand-ring: color-mix(in oklch, var(--brand), transparent 72%);
+  --brand-glow: color-mix(in oklch, var(--brand), transparent 64%);
+
+  /* pastel blob field tints (decorative section background ONLY, never behind body text) */
+  --blob-blue: oklch(0.80 0.10 250);
+  --blob-amber: oklch(0.89 0.075 75);
+  --blob-strength: 1;
+
+  /* Aurora is the dark-only brand moment; render flat (transparent) in light. */
   --aurora-1: oklch(0.62 0.055 158 / 0);
   --aurora-2: oklch(0.50 0.045 168 / 0);
   --aurora-3: oklch(0.40 0.030 150 / 0);
   --aurora-haze: oklch(0.30 0.015 160 / 0);
-  --chart-1: oklch(0.2 0 0);
-  --chart-2: oklch(0.4 0 0);
-  --chart-3: oklch(0.55 0 0);
-  --chart-4: oklch(0.7 0 0);
-  --chart-5: oklch(0.82 0 0);
-  --sidebar: oklch(0.99 0 0);
-  --sidebar-foreground: oklch(0.14 0 0);
-  --sidebar-primary: oklch(0.16 0 0);
+
+  --chart-1: var(--brand);
+  --chart-2: oklch(0.55 0.02 260);
+  --chart-3: oklch(0.66 0.015 260);
+  --chart-4: oklch(0.76 0.01 260);
+  --chart-5: oklch(0.85 0.008 260);
+  --sidebar: oklch(0.99 0.002 260);
+  --sidebar-foreground: oklch(0.17 0.005 270);
+  --sidebar-primary: oklch(0.18 0.006 270);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.95 0 0);
-  --sidebar-accent-foreground: oklch(0.16 0 0);
-  --sidebar-border: oklch(0.91 0 0);
-  --sidebar-ring: oklch(0.4 0 0);
+  --sidebar-accent: oklch(0.96 0.004 255);
+  --sidebar-accent-foreground: oklch(0.20 0.006 270);
+  --sidebar-border: oklch(0.922 0.004 260);
+  --sidebar-ring: var(--brand);
 }
 
 /* Dark theme — the Troof default. "Pure Mono": stark black-and-white instrument. */
@@ -135,8 +156,12 @@
   --border: oklch(1 0 0 / 7%);             /* barely-there */
   --input: oklch(1 0 0 / 12%);
   --ring: oklch(0.7 0 0);                   /* monochrome focus ring */
-  --brand: oklch(0.86 0 0);                /* mono "accent" — light gray on dark */
+  --brand: oklch(0.86 0 0);                /* dark keeps the mono accent (toggle stays Pure Mono) */
   --brand-foreground: oklch(0.14 0 0);
+  /* blob tints sit further back on near-black */
+  --blob-blue: oklch(0.55 0.12 255);
+  --blob-amber: oklch(0.60 0.08 65);
+  --blob-strength: 0.5;
   /* AURORA — the one brand moment. Atmosphere, never accent: chroma capped at <= 0.06,
      a third of verified's 0.18, so it reads as depth, not as the sacred green.
      Never use as a signal, border, status, or text color. */
@@ -246,8 +271,53 @@
   }
 }
 
+/* ── Troof Blob Field ───────────────────────────────────────────────────────
+   The light-theme brand atmosphere (Oracle-style): soft pastel blue + amber blobs,
+   blurred, masked, dialed by --blob-strength. Same discipline as .troof-aurora:
+   decorative only, behind hero/trust sections, NEVER behind running body text. */
+@layer components {
+  .troof-blobs {
+    position: relative;
+    isolation: isolate;
+    background-color: var(--background);
+  }
+  .troof-blobs::before {
+    content: "";
+    position: absolute;
+    inset: -10%;
+    z-index: -2;
+    pointer-events: none;
+    opacity: calc(var(--blob-strength, 1) * 0.9);
+    background:
+      radial-gradient(36% 40% at 20% 26%,
+        color-mix(in oklch, var(--blob-blue), transparent 24%) 0%,
+        color-mix(in oklch, var(--blob-blue), transparent 70%) 46%,
+        transparent 72%),
+      radial-gradient(42% 44% at 84% 30%,
+        color-mix(in oklch, var(--blob-amber), transparent 32%) 0%,
+        color-mix(in oklch, var(--blob-amber), transparent 74%) 50%,
+        transparent 76%),
+      radial-gradient(48% 48% at 66% 92%,
+        color-mix(in oklch, var(--blob-blue), transparent 56%) 0%,
+        transparent 66%);
+    filter: blur(72px);
+    -webkit-mask-image: radial-gradient(125% 100% at 50% 28%, #000 52%, transparent 100%);
+            mask-image: radial-gradient(125% 100% at 50% 28%, #000 52%, transparent 100%);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .troof-blobs--drift::before { animation: blob-drift 20s ease-in-out infinite alternate; }
+  }
+  @keyframes blob-drift {
+    from { transform: translate(0, 0)    scale(1); }
+    to   { transform: translate(-3%, 2%) scale(1.06); }
+  }
+  /* OrbitCluster ring rotation (motion-safe, opt-in via the component) */
+  @keyframes orbit-spin { to { transform: rotate(360deg); } }
+  @keyframes orbit-spin-rev { to { transform: rotate(-360deg); } }
+}
+
 /* Selection feels like an instrument — neutral, no chroma (Pure Mono). */
-::selection { background: oklch(1 0 0 / 18%); }
+::selection { background: oklch(0.62 0.17 255 / 18%); }
 
 /* driver.js coachmark tour — match the Troof theme. */
 .driver-popover {

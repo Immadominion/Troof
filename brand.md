@@ -5,40 +5,49 @@
 Source of truth for color, type, and voice. `frontend-design` / `impeccable` read this file.
 
 ## Direction
-**"Cryptographic instrument."** Stark Minimal base + Workstation Dense data traits. Dark-first,
-near-black, precise. Feels like a precision tool, not an AI toy.
+**"Verifiable explorer."** Light-first, airy, approachable, with a single blue accent and soft
+pastel atmosphere (the marketing surface), built on the same precise instrument underneath. The
+dark "cryptographic instrument" theme remains available via the toggle.
 
-## Palette: **Pure Mono** (chosen via brand-design)
-Truest black-and-white. **There is no chromatic accent.** Links, focus rings, and "live" indicators
-use a neutral light gray (`--brand`). This is deliberate:
+## Palette: **Light + one blue accent** (evolved from Pure Mono)
+Airy white surfaces, a near-black ink, and **one decorative accent: brand blue** (the logo blue,
+`--brand` = `oklch(0.62 0.17 255)`). The blue is used for links, focus rings, sparkles, orbit rings,
+button glow, and accent cards. Its chroma (0.17) is held **below** the verdict green (0.18) on purpose.
+Soft pastel blue+amber blobs (`--blob-*`, via `.troof-blobs`) provide atmosphere, decoration only.
+
+> The dark toggle keeps `--brand` neutral gray, so the dark theme stays Pure Mono.
 
 ## The one rule that defines the brand
-**Color is the proof.** The *only* saturated colors anywhere in the product are the verdict states:
+**Color is the proof.** The blue is *decoration*; the only **signal** colors anywhere in the product
+are the verdict states:
 - 🟢 **Verified** — `--verified` = `oklch(0.74 0.18 152)`
 - 🔴 **Tampered** — `--tampered` = `oklch(0.637 0.237 25.5)`
 
-Everything else — backgrounds, text, buttons, links, focus — is pure neutral. Green/red are **sacred**:
-never decorative, never anything but a verification verdict. The wow-moment (green↔red) is therefore
-the single most colorful thing a user ever sees.
+Green/red are **sacred**: never decorative, never anything but a verification verdict, never replaced by
+blue. The wow-moment (green↔red) stays the most meaningful color on the page. Blue never renders a
+status, a verdict, or a grade.
 
 ## Color tokens (OKLCH — in `src/app/globals.css`)
-Dark is the default (`.dark`); light is secondary.
+Light is the default (`:root`); dark is the toggle (`.dark`).
 
-| Token | Dark | Light | Use |
+| Token | Light (default) | Dark | Use |
 |---|---|---|---|
-| `--background` | `0.135 0 0` | `1 0 0` | page (deepest near-black) |
-| `--card` | `0.18 0 0` | `0.99 0 0` | lifted panels |
-| `--foreground` | `0.98 0 0` | `0.14 0 0` | text |
-| `--muted-foreground` | `0.62 0 0` | `0.44 0 0` | secondary text |
-| `--primary` | `0.98 0 0` | `0.16 0 0` | primary buttons (stark white on dark) |
-| `--border` | `1 0 0 / 7%` | `0.91 0 0` | barely-there hairlines |
-| `--ring` | `0.7 0 0` | `0.4 0 0` | focus (monochrome) |
-| `--brand` | `0.86 0 0` | `0.32 0 0` | links / focus / "live" — neutral gray, NOT a color |
+| `--background` | `1 0 0` | `0.135 0 0` | page |
+| `--card` | `0.995 0.002 260` | `0.18 0 0` | panels / cards |
+| `--foreground` | `0.17 0.005 270` | `0.98 0 0` | text |
+| `--muted-foreground` | `0.44 0.012 265` | `0.62 0 0` | secondary text (AA on white) |
+| `--primary` | `0.18 0.006 270` | `0.98 0 0` | primary buttons (near-black on light) |
+| `--border` | `0.922 0.004 260` | `1 0 0 / 7%` | hairlines |
+| `--ring` | `var(--brand)` | `0.7 0 0` | focus (blue on light, mono on dark) |
+| `--brand` | `0.62 0.17 255` | `0.86 0 0` | **blue accent** (light) / neutral gray (dark) — decoration only |
+| `--brand-soft` / `-ring` / `-glow` | derived via `color-mix` | *(same)* | chips, orbit rings, button glow |
+| `--blob-blue` / `--blob-amber` | `0.80 0.10 250` / `0.89 0.075 75` | deeper | pastel blob field (decor only) |
 | `--verified` | `0.74 0.18 152` | *(same)* | SACRED green — Verified verdict |
 | `--tampered` | `0.637 0.237 25.5` | *(same)* | SACRED red — Tampered verdict |
 
-Tailwind utilities: `bg-verified` `text-verified` `border-verified/30` `bg-verified-muted`
-`text-tampered` `bg-tampered-muted` `text-brand` `bg-brand`. Radius `--radius: 0.5rem`.
+Tailwind utilities: `bg-verified` `text-verified` `bg-verified-muted` `text-tampered` `bg-tampered-muted`
+`text-brand` `bg-brand` `bg-brand-soft` `border-brand-ring`. Atmosphere: `.troof-blobs` (light),
+`.troof-aurora` (dark). Radius `--radius: 0.75rem`.
 
 ## Typography
 - **Geist Sans** — UI + headings. Tight display tracking (`tracking-tight`). Max 3 weights.
@@ -55,7 +64,8 @@ oversell the AI — the point is you don't have to trust it. One-sentence why: *
 forgeable; a content-addressed blob anchored on-chain is not.*
 
 ## Don't (instant AI-slop tells)
-No purple/indigo AI gradients · no glassmorphism · no neon glow · no emoji-as-icons · no `transition: all` ·
-no centered-everything marketing slop · **no chromatic accent at all** · green/red ONLY for verdicts · no pure `#000`.
+No purple/indigo rainbow gradients · no glassmorphism overload · no neon/stacked glow · no emoji-as-icons ·
+no `transition: all` · no gradient-filled headings · **blue is the ONLY accent** (no second chromatic color) ·
+green/red ONLY for verdicts (never blue, never decorative) · sparkles used sparingly · no pure `#000`.
 
 > Backup of the previous theme at `src/app/globals.css.bak`. Preview at `.brand-preview/` (safe to delete: `rm -rf .brand-preview/`).

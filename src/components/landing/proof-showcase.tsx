@@ -26,8 +26,8 @@ export function ProofShowcase({
   return (
     <div className="grid gap-5 lg:grid-cols-[1.25fr_1fr] lg:items-stretch">
       {/* ── A real, openable proof ── */}
-      <div className="rounded-2xl border border-border bg-card/60 p-1.5 shadow-2xl shadow-black/40">
-        <div className="rounded-xl border border-border/60 bg-background/70 p-5">
+      <div className="rounded-2xl border border-border bg-card p-1.5 shadow-xl shadow-foreground/[0.06]">
+        <div className="rounded-xl border border-border/60 bg-background p-5">
           <div className="flex items-center justify-between gap-3">
             <span className="artifact text-[11px] uppercase tracking-wider text-muted-foreground">
               troof proof
@@ -73,7 +73,7 @@ export function ProofShowcase({
       </div>
 
       {/* ── The Troof Score scale ── */}
-      <div className="flex flex-col rounded-2xl border border-border bg-card/40 p-5">
+      <div className="flex flex-col rounded-2xl border border-border bg-card p-5 shadow-xl shadow-foreground/[0.06]">
         <div className="flex items-baseline justify-between gap-3">
           <span className="text-sm font-medium">Troof Score</span>
           <span className="artifact text-[11px] uppercase tracking-wider text-muted-foreground">
