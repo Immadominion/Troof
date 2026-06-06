@@ -6,7 +6,6 @@ import { z } from "zod";
 import { buildReport } from "./report";
 import { buildTokenReport } from "./token";
 import { buildTxReport } from "./tx";
-import { sealProof, sealToken, sealTransaction } from "./seal";
 import type { Network } from "./constants";
 
 const networkSchema = z.enum(["mainnet", "testnet"]);
@@ -42,31 +41,17 @@ export const analyzeWalletTool = tool({
 
 export const sealProofTool = tool({
   description:
-    "Seal a verifiable proof of your analysis: rebuilds the report, embeds your verdict, anchors its SHA-256 on Sui, and stores it on Walrus. Returns a shareable proof URL. Call this ONLY after analyze_wallet and after writing a clear verdict.",
+    "Prepare a verifiable proof of your wallet analysis for the user to seal. This does NOT seal immediately — it surfaces a 'Seal this as a proof' button. Call it after analyze_wallet when the finding is notable or the user asks to seal/prove/save. Provide a one-line headline + a 2–4 sentence summary (your verdict); these get embedded in the proof when the user seals it.",
   inputSchema: z.object({
     network: networkSchema,
     address: z.string(),
     headline: z.string().describe("one-line verdict, e.g. 'Active wallet ~$82 in SUI; 4 impersonator tokens flagged'"),
     summary: z.string().describe("2–4 sentence plain-English analysis a human can read"),
   }),
+  // Light: surface a Seal button instead of sealing here. The real anchor-on-Sui + Walrus write
+  // runs in the client's own POST /api/seal so it never times out the streamed chat request.
   execute: async ({ network, address, headline, summary }) => {
-    const r = await sealProof(network as Network, address, {
-      model: "Troof agent (Claude)",
-      headline,
-      summary,
-      generatedAt: new Date().toISOString(),
-    });
-    return {
-      proofUrl: r.proofUrl,
-      blobId: r.blobId,
-      contentHash: r.contentHash,
-      recordId: r.anchor.recordId,
-      txDigest: r.anchor.txDigest,
-      kind: "wallet",
-      subject: address,
-      network,
-      headline,
-    };
+    return { ready: true, kind: "wallet", subject: address, network, headline, summary };
   },
 });
 
@@ -86,7 +71,7 @@ export const analyzeTokenTool = tool({
 
 export const sealTokenTool = tool({
   description:
-    "Seal a verifiable proof of a token's Troof Score: anchors the score's hash on Sui and stores the full scoring bundle on Walrus. Call after analyze_token, with a one-line headline and short summary. Returns a proof URL.",
+    "Prepare a verifiable proof of a token's Troof Score for the user to seal. Does NOT seal immediately — it surfaces a 'Seal this as a proof' button. Call after analyze_token with a one-line headline + short summary; they get embedded when the user seals it.",
   inputSchema: z.object({
     network: networkSchema,
     coinType: z.string(),
@@ -94,22 +79,7 @@ export const sealTokenTool = tool({
     summary: z.string().describe("2–4 sentence plain-English summary"),
   }),
   execute: async ({ network, coinType, headline, summary }) => {
-    const r = await sealToken(network as Network, coinType, {
-      model: "Troof agent (Claude)",
-      headline,
-      summary,
-      generatedAt: new Date().toISOString(),
-    });
-    return {
-      proofUrl: r.proofUrl,
-      blobId: r.blobId,
-      contentHash: r.contentHash,
-      recordId: r.anchor.recordId,
-      kind: "token",
-      subject: coinType,
-      network,
-      headline,
-    };
+    return { ready: true, kind: "token", subject: coinType, network, headline, summary };
   },
 });
 
@@ -129,7 +99,7 @@ export const analyzeTransactionTool = tool({
 
 export const sealTransactionTool = tool({
   description:
-    "Seal a verifiable proof of a transaction explanation: anchors its hash on Sui and stores the bundle on Walrus. Call after analyze_transaction, with a one-line headline + short summary. Returns a proof URL.",
+    "Prepare a verifiable proof of a transaction explanation for the user to seal. Does NOT seal immediately — it surfaces a 'Seal this as a proof' button. Call after analyze_transaction with a one-line headline + short summary.",
   inputSchema: z.object({
     network: networkSchema,
     digest: z.string(),
@@ -137,22 +107,7 @@ export const sealTransactionTool = tool({
     summary: z.string().describe("2–4 sentence plain-English explanation of what the transaction did"),
   }),
   execute: async ({ network, digest, headline, summary }) => {
-    const r = await sealTransaction(network as Network, digest, {
-      model: "Troof agent (Claude)",
-      headline,
-      summary,
-      generatedAt: new Date().toISOString(),
-    });
-    return {
-      proofUrl: r.proofUrl,
-      blobId: r.blobId,
-      contentHash: r.contentHash,
-      recordId: r.anchor.recordId,
-      kind: "transaction",
-      subject: digest,
-      network,
-      headline,
-    };
+    return { ready: true, kind: "transaction", subject: digest, network, headline, summary };
   },
 });
 

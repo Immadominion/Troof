@@ -14,10 +14,17 @@ export async function putBlob(
   data: string | Uint8Array,
   epochs = 5,
 ): Promise<WalrusPutResult> {
-  const res = await fetch(`${WALRUS[network].publisher}/v1/blobs?epochs=${epochs}`, {
-    method: "PUT",
-    body: data as BodyInit,
-  });
+  // The public Walrus publisher 429s / 5xxes under load; retry with backoff so a transient
+  // hiccup doesn't fail the seal.
+  let res!: Response;
+  for (let i = 0; i < 4; i++) {
+    res = await fetch(`${WALRUS[network].publisher}/v1/blobs?epochs=${epochs}`, {
+      method: "PUT",
+      body: data as BodyInit,
+    });
+    if (res.ok || (res.status !== 429 && res.status < 500)) break;
+    await new Promise((r) => setTimeout(r, 800 * (i + 1)));
+  }
   if (!res.ok) throw new Error(`Walrus publisher → HTTP ${res.status}`);
   const j = await res.json();
   if (j.newlyCreated) {

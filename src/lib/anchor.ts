@@ -16,11 +16,25 @@ export function anchorConfigured(): boolean {
   return Boolean(SIGNER && PACKAGE);
 }
 
+// The Sui SDK client makes several un-gated RPC calls per anchor (execute + effects polling)
+// straight through Tatum's gateway, which can 429 on the free tier right after a report build.
+// Retry 429s with backoff so a transient rate-limit doesn't fail the whole seal.
+const retryingFetch: typeof fetch = async (input, init) => {
+  let res!: Response;
+  for (let i = 0; i < 5; i++) {
+    res = await fetch(input, init);
+    if (res.status !== 429) return res;
+    await new Promise((r) => setTimeout(r, 600 * (i + 1)));
+  }
+  return res;
+};
+
 function suiClient(network: Network) {
   return new SuiClient({
     transport: new SuiHTTPTransport({
       url: NETWORKS[network].tatumRpc,
       rpc: { headers: { "x-api-key": KEY } },
+      fetch: retryingFetch,
     }),
   });
 }

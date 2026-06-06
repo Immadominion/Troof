@@ -51,13 +51,34 @@ const TILES = [
 
 type AnyPart = { type: string; toolName?: string; state?: string; output?: unknown; text?: string };
 const toolName = (p: AnyPart) => (p.type === "dynamic-tool" ? p.toolName ?? "tool" : p.type.replace("tool-", ""));
-function proofUrlFrom(p: AnyPart): string | null {
+type SealReady = {
+  kind: "wallet" | "token" | "transaction";
+  subject: string;
+  network: string;
+  headline?: string;
+  summary?: string;
+};
+// The seal tools no longer seal in-stream — they return a "ready" descriptor and the client
+// seals via POST /api/seal (its own request budget, so it can't time out the chat stream).
+function sealReadyFrom(p: AnyPart): SealReady | null {
   const n = toolName(p);
   if (
     (n === "seal_wallet_proof" || n === "seal_token_proof" || n === "seal_transaction_proof") &&
     p.state === "output-available"
   ) {
-    return (p.output as { proofUrl?: string })?.proofUrl ?? null;
+    const o = p.output as {
+      ready?: boolean; kind?: string; subject?: string;
+      network?: string; headline?: string; summary?: string;
+    };
+    if (o?.ready && o.subject) {
+      return {
+        kind: o.kind === "token" || o.kind === "transaction" ? o.kind : "wallet",
+        subject: o.subject,
+        network: o.network ?? "mainnet",
+        headline: o.headline,
+        summary: o.summary,
+      };
+    }
   }
   return null;
 }
@@ -104,38 +125,6 @@ export default function AnalyzePage() {
   useEffect(() => {
     if (account) setGateOpen(false);
   }, [account]);
-  // Save every sealed proof to the local "Your proofs" history (idempotent by blobId).
-  useEffect(() => {
-    for (const m of messages) {
-      if (m.role !== "assistant") continue;
-      for (const p of m.parts as AnyPart[]) {
-        const n = toolName(p);
-        if (
-          (n === "seal_wallet_proof" || n === "seal_token_proof" || n === "seal_transaction_proof") &&
-          p.state === "output-available" && p.output
-        ) {
-          const o = p.output as {
-            blobId?: string; proofUrl?: string; kind?: string;
-            subject?: string; headline?: string; network?: string;
-          };
-          if (o.blobId && o.proofUrl) {
-            addProof(
-              {
-                blobId: o.blobId,
-                proofUrl: o.proofUrl,
-                kind: o.kind === "token" || o.kind === "transaction" ? o.kind : "wallet",
-                subject: o.subject ?? "",
-                headline: o.headline,
-                network: o.network,
-                ts: Date.now(),
-              },
-              account?.address,
-            );
-          }
-        }
-      }
-    }
-  }, [messages, account?.address]);
 
   function gateState(): "ok" | "connect" | "pay" {
     if (account) {
@@ -273,13 +262,9 @@ export default function AnalyzePage() {
                     );
                   }
                   const n = toolName(part);
-                  const proofUrl = proofUrlFrom(part);
-                  if (proofUrl) {
-                    return (
-                      <Link key={i} href={proofUrl} className="inline-flex items-center gap-2 rounded-lg border border-verified/30 bg-verified-muted px-4 py-2.5 text-sm font-medium text-verified">
-                        <ShieldCheck className="h-4 w-4" /> View the sealed proof →
-                      </Link>
-                    );
+                  const sealReady = sealReadyFrom(part);
+                  if (sealReady) {
+                    return <SealButton key={i} {...sealReady} account={account?.address} />;
                   }
                   if (n === "analyze_token" && part.state === "output-available" && part.output) {
                     return <TokenScoreCard key={i} report={part.output as TokenReport} />;
@@ -337,6 +322,70 @@ export default function AnalyzePage() {
           <span className="tabnum">{usage}</span>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Seals in its own POST /api/seal request (fresh budget → no chat-stream timeout), with a real
+// progress label and retry. On success it links to the proof and saves it to local history.
+function SealButton({
+  kind, subject, network, headline, summary, account,
+}: SealReady & { account?: string }) {
+  const [state, setState] = useState<"idle" | "sealing" | "done" | "error">("idle");
+  const [proofUrl, setProofUrl] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function seal() {
+    setState("sealing");
+    setErr(null);
+    try {
+      const res = await fetch("/api/seal", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ kind, network, subject, headline, summary }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok || !j.blobId || !j.proofUrl) throw new Error(j.error || "Seal failed");
+      setProofUrl(j.proofUrl);
+      setState("done");
+      addProof(
+        { blobId: j.blobId, proofUrl: j.proofUrl, kind, subject, headline, network, ts: Date.now() },
+        account,
+      );
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Seal failed. Try again.");
+      setState("error");
+    }
+  }
+
+  if (state === "done" && proofUrl) {
+    return (
+      <Link
+        href={safeProofHref(proofUrl)}
+        className="inline-flex items-center gap-2 rounded-lg border border-verified/30 bg-verified-muted px-4 py-2.5 text-sm font-medium text-verified"
+      >
+        <ShieldCheck className="h-4 w-4" /> View the sealed proof →
+      </Link>
+    );
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <button
+        type="button"
+        onClick={seal}
+        disabled={state === "sealing"}
+        className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium transition-colors hover:bg-card/70 disabled:cursor-not-allowed disabled:opacity-70"
+      >
+        {state === "sealing" ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+        {state === "sealing" ? "Sealing… anchoring on Sui, storing on Walrus" : "Seal this as a proof"}
+      </button>
+      {err && (
+        <p className="text-xs text-muted-foreground">
+          {err}{" "}
+          <button type="button" onClick={seal} className="underline hover:text-foreground">retry</button>
+        </p>
+      )}
     </div>
   );
 }
