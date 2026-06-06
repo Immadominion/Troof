@@ -3,7 +3,7 @@
 import { buildReport } from "./report";
 import { buildTokenReport } from "./token";
 import { buildTxReport } from "./tx";
-import { anchorOnChain, ANCHOR_NETWORK } from "./anchor";
+import { anchorOnChain, markSealed, ANCHOR_NETWORK } from "./anchor";
 import { putBlob } from "./walrus";
 import { hashCanonical } from "./canonical";
 import { WALRUS, type Network } from "./constants";
@@ -30,6 +30,7 @@ async function sealBundle(
   subject: string,
   walletNetwork: Network,
   report: WalletReport | TokenReport | TransactionReport,
+  sealedFor: string | null = null,
 ): Promise<SealResult> {
   // Global gas/storage ceiling — applied here so EVERY seal path (API route AND the AI agent's
   // seal tool) shares one cap and a single signer can't be drained in a day.
@@ -58,6 +59,16 @@ async function sealBundle(
 
   const epochs = ANCHOR_NETWORK === "mainnet" ? 5 : 10;
   const put = await putBlob(ANCHOR_NETWORK, JSON.stringify(sealed), epochs);
+
+  // Index this seal on-chain for the viewer's history (heavy data on Walrus, pointer on Sui).
+  // Best-effort: the proof is already sealed + verifiable above, so a failure here (or an old
+  // anchor package without mark_sealed) must never fail the seal.
+  try {
+    await markSealed(put.blobId, contentHash, kind, subject, sealedFor);
+  } catch {
+    /* history index is best-effort */
+  }
+
   return {
     blobId: put.blobId,
     anchor: sealed.anchor,
@@ -72,10 +83,11 @@ export async function sealProof(
   network: Network,
   address: string,
   ai: AiVerdict | null = null,
+  sealedFor: string | null = null,
 ): Promise<SealResult> {
   const { report } = await buildReport(network, address);
   report.ai = ai;
-  return sealBundle("wallet", address, network, report);
+  return sealBundle("wallet", address, network, report, sealedFor);
 }
 
 /** Seal a token report + its Troof Score. */
@@ -83,10 +95,11 @@ export async function sealToken(
   network: Network,
   coinType: string,
   ai: AiVerdict | null = null,
+  sealedFor: string | null = null,
 ): Promise<SealResult> {
   const { report } = await buildTokenReport(network, coinType);
   report.ai = ai;
-  return sealBundle("token", coinType, network, report);
+  return sealBundle("token", coinType, network, report, sealedFor);
 }
 
 /** Seal a transaction explanation (embeds the AI verdict before hashing). */
@@ -94,8 +107,9 @@ export async function sealTransaction(
   network: Network,
   digest: string,
   ai: AiVerdict | null = null,
+  sealedFor: string | null = null,
 ): Promise<SealResult> {
   const { report } = await buildTxReport(network, digest);
   report.ai = ai;
-  return sealBundle("transaction", digest, network, report);
+  return sealBundle("transaction", digest, network, report, sealedFor);
 }

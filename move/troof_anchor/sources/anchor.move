@@ -30,6 +30,21 @@ public struct Anchored has copy, drop {
     epoch: u64,
 }
 
+/// Emitted AFTER the proof bundle is stored on Walrus (when the real blob id is known), to
+/// index it for the viewer who sealed it. The heavy data lives on Walrus at `blob_id`; this
+/// event is the per-user discovery pointer, so proof history can be reconstructed from
+/// Sui events + Walrus with no database. Server-signed; `sealed_for` is the connected wallet
+/// (or 0x0 when anonymous).
+public struct Sealed has copy, drop {
+    blob_id: String,
+    content_hash: String,
+    kind: String,
+    subject: String,
+    sealed_for: address,
+    sealed_by: address,
+    epoch: u64,
+}
+
 /// Seal a proof: create the immutable Record and emit an Anchored event.
 public entry fun anchor(
     blob_id: String,
@@ -55,4 +70,26 @@ public entry fun anchor(
         epoch: ctx.epoch(),
     });
     transfer::public_transfer(rec, ctx.sender());
+}
+
+/// Emit a discovery event linking a stored Walrus blob to the viewer who sealed it.
+/// Called after the blob is written (the real blob id is only known then). Additive and
+/// best-effort: the seal's root of trust is still `anchor` above; this only powers history.
+public entry fun mark_sealed(
+    blob_id: String,
+    content_hash: String,
+    kind: String,
+    subject: String,
+    sealed_for: address,
+    ctx: &mut TxContext,
+) {
+    event::emit(Sealed {
+        blob_id,
+        content_hash,
+        kind,
+        subject,
+        sealed_for,
+        sealed_by: ctx.sender(),
+        epoch: ctx.epoch(),
+    });
 }

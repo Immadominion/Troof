@@ -80,10 +80,25 @@ export function useProofHistory(address?: string | null): ProofEntry[] {
   const [proofs, setProofs] = useState<ProofEntry[]>([]);
   useEffect(() => {
     const refresh = () => setProofs(loadProofs(address));
-    refresh();
+    refresh(); // 1) instant: localStorage cache
     window.addEventListener(EVENT, refresh);
     window.addEventListener("storage", refresh); // cross-tab
+
+    // 2) authoritative: a connected wallet reconciles with its ON-CHAIN index, so a new device
+    // or cleared cache still shows its proofs (the honest "history from Walrus + Sui events").
+    let alive = true;
+    if (address) {
+      fetch(`/api/history?address=${encodeURIComponent(address)}`)
+        .then((r) => r.json())
+        .then((d: { proofs?: ProofEntry[] }) => {
+          if (!alive || !Array.isArray(d.proofs)) return;
+          for (const p of d.proofs) addProof(p, address); // idempotent by blobId; href-validated
+          setProofs(loadProofs(address));
+        })
+        .catch(() => {}); // chain hiccup → keep the cache, never crash
+    }
     return () => {
+      alive = false;
       window.removeEventListener(EVENT, refresh);
       window.removeEventListener("storage", refresh);
     };

@@ -179,6 +179,25 @@ export const queryTransactionBlocks = (n: Network, owner: string, limit = 8) =>
     true, // descending, most recent first
   ]);
 
+// ---- Events (the on-chain index for "Your proofs" history) ----
+
+export interface SuiEventItem {
+  id: { txDigest: string; eventSeq: string };
+  type: string;
+  sender: string;
+  timestampMs?: string;
+  parsedJson?: Record<string, unknown>;
+}
+export interface SuiEventPage {
+  data: SuiEventItem[];
+  nextCursor: unknown;
+  hasNextPage: boolean;
+}
+/** Query Move events by exact type (newest first). Filtering by a struct field isn't supported
+ *  server-side on Sui, so callers post-filter (e.g. by `sealed_for`). Goes through the 3 RPS gate. */
+export const queryEvents = (n: Network, eventType: string, cursor: unknown = null, limit = 50) =>
+  rpc<SuiEventPage>(n, "suix_queryEvents", [{ MoveEventType: eventType }, cursor, limit, true]);
+
 // ---- Tatum Data API (chain-agnostic; works for Sui valuation) ----
 
 /** Exchange-Rate Data API → USD price for a symbol. Returns null if unsupported. */

@@ -46,19 +46,22 @@ export async function POST(req: NextRequest) {
         }
       : null;
 
+  // The connected wallet that gets this proof in its on-chain history (or null if anonymous).
+  const sealedFor = typeof body.sealedFor === "string" ? body.sealedFor : null;
+
   try {
     if (kind === "token") {
       if (!/^0x[0-9a-fA-F]+::[^:]+::.+/.test(subject))
         return NextResponse.json({ error: "Invalid coinType" }, { status: 400 });
-      return NextResponse.json(await sealToken(network, subject, ai));
+      return NextResponse.json(await sealToken(network, subject, ai, sealedFor));
     }
     if (kind === "transaction") {
       if (!/^[A-Za-z0-9]{32,50}$/.test(subject))
         return NextResponse.json({ error: "Invalid transaction digest" }, { status: 400 });
-      return NextResponse.json(await sealTransaction(network, subject, ai));
+      return NextResponse.json(await sealTransaction(network, subject, ai, sealedFor));
     }
     if (!isLikelySuiAddress(subject)) return NextResponse.json({ error: "Invalid address" }, { status: 400 });
-    return NextResponse.json(await sealProof(network, subject, ai));
+    return NextResponse.json(await sealProof(network, subject, ai, sealedFor));
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : "Seal failed" }, { status: 500 });
   }

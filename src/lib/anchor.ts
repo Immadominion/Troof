@@ -91,3 +91,42 @@ export async function anchorOnChain(
     network: walletNetwork,
   };
 }
+
+const ZERO_ADDR = "0x0000000000000000000000000000000000000000000000000000000000000000";
+
+/** Emit a per-viewer discovery event (anchor::mark_sealed) AFTER the blob is on Walrus, so a
+ *  user's proof history can be reconstructed from Sui events + Walrus, no DB. Best-effort:
+ *  callers should not let a failure here fail the seal. `sealedFor` = connected wallet or null. */
+export async function markSealed(
+  blobId: string,
+  contentHash: string,
+  kind: string,
+  subject: string,
+  sealedFor: string | null,
+): Promise<void> {
+  if (!SIGNER || !PACKAGE) return;
+  const owner = sealedFor && /^0x[0-9a-fA-F]{1,64}$/.test(sealedFor) ? sealedFor : ZERO_ADDR;
+  const kp = Ed25519Keypair.fromSecretKey(SIGNER);
+  const client = suiClient(ANCHOR_NETWORK);
+
+  const tx = new Transaction();
+  tx.moveCall({
+    target: `${PACKAGE}::anchor::mark_sealed`,
+    arguments: [
+      tx.pure.string(blobId),
+      tx.pure.string(contentHash),
+      tx.pure.string(kind),
+      tx.pure.string(subject),
+      tx.pure.address(owner),
+    ],
+  });
+
+  const res = await client.signAndExecuteTransaction({
+    signer: kp,
+    transaction: tx,
+    options: { showEffects: true },
+  });
+  if (res.effects?.status?.status !== "success") {
+    throw new Error(`mark_sealed failed: ${JSON.stringify(res.effects?.status)}`);
+  }
+}

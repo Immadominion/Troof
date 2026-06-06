@@ -342,7 +342,7 @@ function SealButton({
       const res = await fetch("/api/seal", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ kind, network, subject, headline, summary }),
+        body: JSON.stringify({ kind, network, subject, headline, summary, sealedFor: account ?? null }),
       });
       const j = await res.json().catch(() => ({}));
       if (!res.ok || !j.blobId || !j.proofUrl) throw new Error(j.error || "Seal failed");
